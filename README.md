@@ -2,7 +2,7 @@
 Телеграм-бот показывает прогноз погоды на следующий день в выбранном из списка городе.
 
 ## Скриншот
-![Application screenshot](https://github.com/dmentry/what_to_wear_tg_bot/blob/master/screenshot_bot.jpg)
+![Application screenshot](https://github.com/dmentry/WeatherForecastBot/blob/master/Screenshot.jpg)
 
 ## Потестировать бота
 Клонировать или скачать репозиторий
