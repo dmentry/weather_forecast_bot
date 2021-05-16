@@ -3,15 +3,28 @@ require 'net/http'
 require 'json'
 
 class ForecastOpenweathermap
-  def initialize(token, coordinates)
+  def initialize(token, coordinates, city_name)
     @token ||= token
 
     @coordinates = coordinates
+
+    @city_name = city_name
   end
 
   def daily_temp
-    # температура на сутки вперед
-    weather_json[:daily][1]
+    # температура на следующие сутки
+    forecast_raw_data = weather_json[:daily][1]
+
+    <<-FORECAST
+      #{ @city_name } - прогноз погоды на #{ Time.at(forecast_raw_data[:dt]).strftime("%d.%m.%Y") }:
+      Утром:   #{ temperature_human(forecast_raw_data[:temp][:morn].round) }°C
+      Днем:    #{ temperature_human(forecast_raw_data[:temp][:day].round) }°C
+      Вечером: #{ temperature_human(forecast_raw_data[:temp][:eve].round) }°C
+      Ночью:   #{ temperature_human(forecast_raw_data[:temp][:night].round) }°C
+      Ветер:   #{ forecast_raw_data[:wind_speed] } м/с
+      #{ forecast_raw_data[:weather][0][:description].capitalize }
+      Вероятность осадков #{ (forecast_raw_data[:pop]*100).to_i }% }
+    FORECAST
   end
 
   private

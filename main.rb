@@ -19,21 +19,21 @@ Telegram::Bot::Client.run(tg_bot_token) do |bot|
 
       city_coordinates = cities.values[choise - 1]
 
-      forecast = ForecastOpenweathermap.new(ENV['OPENWEATHERMAP_KEY'], city_coordinates)
+      forecast = ForecastOpenweathermap.new(ENV['OPENWEATHERMAP_KEY'], city_coordinates, cities.keys[choise - 1])
 
-      forecast_raw_data = forecast.daily_temp
+      forecast_city = forecast.daily_temp
 
-      bot.api.send_message(chat_id: message.chat.id, text: forecast_city(forecast_raw_data, cities.keys[choise - 1]))
+      bot.api.send_message(chat_id: message.chat.id, text: forecast_city)
     when '/2'
-      choise = 2
+      # choise = 2
 
-      city_coordinates = cities.values[choise - 1]
+      # city_coordinates = cities.values[choise - 1]
 
-      forecast = ForecastOpenweathermap.new(ENV['OPENWEATHERMAP_KEY'], city_coordinates)
+      # forecast = ForecastOpenweathermap.new(ENV['OPENWEATHERMAP_KEY'], city_coordinates)
 
-      forecast_raw_data = forecast.daily_temp
+      # forecast_raw_data = forecast.daily_temp
 
-      bot.api.send_message(chat_id: message.chat.id, text: forecast_city(forecast_raw_data, cities.keys[choise - 1]))
+      # bot.api.send_message(chat_id: message.chat.id, text: forecast_city(forecast_raw_data, cities.keys[choise - 1]))
     else
       bot.api.send_message(chat_id: message.chat.id, text: "Не понимаю команду")
     end
