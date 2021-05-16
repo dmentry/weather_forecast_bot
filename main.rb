@@ -20,9 +20,7 @@ Telegram::Bot::Client.run(tg_bot_token) do |bot|
 
       forecast = ForecastOpenweathermap.new(ENV['OPENWEATHERMAP_KEY'], city_coordinates, cities.keys[choise - 1])
 
-      forecast_city = forecast.daily_temp
-
-      bot.api.send_message(chat_id: message.chat.id, text: forecast_city)
+      bot.api.send_message(chat_id: message.chat.id, text: forecast.daily_temp)
     when '/2'
       choise = 2
 
@@ -30,9 +28,7 @@ Telegram::Bot::Client.run(tg_bot_token) do |bot|
 
       forecast = ForecastOpenweathermap.new(ENV['OPENWEATHERMAP_KEY'], city_coordinates, cities.keys[choise - 1])
 
-      forecast_city = forecast.daily_temp
-
-      bot.api.send_message(chat_id: message.chat.id, text: forecast_city)
+      bot.api.send_message(chat_id: message.chat.id, text: forecast.daily_temp)
     else
       bot.api.send_message(chat_id: message.chat.id, text: "Не понимаю команду")
     end

@@ -23,7 +23,7 @@ class ForecastOpenweathermap
       Ночью:   #{ temperature_human(forecast_raw_data[:temp][:night].round) }°C
       Ветер:   #{ forecast_raw_data[:wind_speed] } м/с
       #{ forecast_raw_data[:weather][0][:description].capitalize }
-      Вероятность осадков #{ (forecast_raw_data[:pop]*100).to_i }% }
+      Вероятность осадков: #{ (forecast_raw_data[:pop]*100).to_i }%
     FORECAST
   end
 
