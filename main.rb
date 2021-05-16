@@ -1,6 +1,6 @@
 require 'telegram/bot'
 require_relative 'lib/forecast_openweathermap'
-require_relative 'lib/temperature_helper'
+# require_relative 'lib/temperature_helper'
 
 tg_bot_token = ENV['TELEGRAM_BOT_API_TOKEN']
 
@@ -10,7 +10,7 @@ Telegram::Bot::Client.run(tg_bot_token) do |bot|
   bot.listen do |message|
     case message.text
     when '/start'
-      bot.api.send_Message(chat_id: message.chat.id, text: "Привет, #{message.from.first_name}! Погоду для какого города вы хотите узнать? Выберите город")
+      bot.api.send_Message(chat_id: message.chat.id, text: "Привет, #{message.from.first_name}! Погоду для какого города вы хотите узнать? Выберите его из списка.")
     when '/stop'
       bot.api.send_message(chat_id: message.chat.id, text: "Пока, #{message.from.first_name}!")
     when '/1'
