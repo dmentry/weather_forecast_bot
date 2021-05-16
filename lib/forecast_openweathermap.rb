@@ -11,7 +11,7 @@ class ForecastOpenweathermap
 
   def daily_temp
     # температура на сутки вперед
-    weather_json[:daily][0]
+    weather_json[:daily][1]
   end
 
   private
