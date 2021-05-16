@@ -1,33 +1,41 @@
-require "net/http"
-require "uri"
-require "rexml/document"
-require_relative "lib/forecast_openweathermap"
+require 'telegram/bot'
+require_relative 'lib/forecast_openweathermap'
 require_relative 'lib/temperature_helper'
+require_relative 'lib/forecast_city'
+
+tg_bot_token = ENV['TELEGRAM_BOT_API_TOKEN']
 
 cities = { "Москва" => [55.7532, 37.6252], "Майкоп" => [44.6107, 40.1058] }
 
-puts "Погоду для какого города Вы хотите узнать?"
+Telegram::Bot::Client.run(tg_bot_token) do |bot|
+  bot.listen do |message|
+    case message.text
+    when '/start'
+      bot.api.send_Message(chat_id: message.chat.id, text: "Привет, #{message.from.first_name}! Погоду для какого города вы хотите узнать? Выберите город")
+    when '/stop'
+      bot.api.send_message(chat_id: message.chat.id, text: "Пока, #{message.from.first_name}!")
+    when '/1'
+      choise = 1
 
-cities.each_key.with_index(1) {|key, index| puts "#{index}: #{key}"}
+      city_coordinates = cities.values[choise - 1]
 
-choise = gets.to_i
+      forecast = ForecastOpenweathermap.new(ENV['OPENWEATHERMAP_KEY'], city_coordinates)
 
-city_coordinates = cities.values[choise - 1]
+      forecast_raw_data = forecast.daily_temp
 
-forecast = ForecastOpenweathermap.new(ENV['OPENWEATHERMAP_KEY'], city_coordinates)
+      bot.api.send_message(chat_id: message.chat.id, text: forecast_city(forecast_raw_data, cities.keys[choise - 1]))
+    when '/2'
+      choise = 2
 
-forecast_raw_data = forecast.daily_temp
+      city_coordinates = cities.values[choise - 1]
 
-forecast = <<HEREDOC
+      forecast = ForecastOpenweathermap.new(ENV['OPENWEATHERMAP_KEY'], city_coordinates)
 
-#{cities.keys[choise - 1]} - прогноз погоды на #{Time.at(forecast_raw_data[:dt]).strftime("%d.%m.%Y")}:
-Утром:   #{ temperature_human(forecast_raw_data[:temp][:morn].round) }°C
-Днем:    #{ temperature_human(forecast_raw_data[:temp][:day].round) }°C
-Вечером: #{ temperature_human(forecast_raw_data[:temp][:eve].round) }°C
-Ночью:   #{ temperature_human(forecast_raw_data[:temp][:night].round) }°C
-Ветер:   #{ forecast_raw_data[:wind_speed] } м/с
-Вероятность осадков #{ (forecast_raw_data[:pop]*100).to_i }% - #{ forecast_raw_data[:weather][0][:description] }
+      forecast_raw_data = forecast.daily_temp
 
-HEREDOC
-
-puts forecast
+      bot.api.send_message(chat_id: message.chat.id, text: forecast_city(forecast_raw_data, cities.keys[choise - 1]))
+    else
+      bot.api.send_message(chat_id: message.chat.id, text: "Не понимаю команду")
+    end
+  end
+end
