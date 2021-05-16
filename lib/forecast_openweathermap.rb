@@ -15,7 +15,7 @@ class ForecastOpenweathermap
     # температура на следующие сутки
     forecast_raw_data = weather_json[:daily][1]
 
-    <<FORECAST
+    <<-FORECAST
       #{ @city_name } - прогноз погоды на #{ Time.at(forecast_raw_data[:dt]).strftime("%d.%m.%Y") }:
       Утром:   #{ temperature_human(forecast_raw_data[:temp][:morn].round) }°C
       Днем:    #{ temperature_human(forecast_raw_data[:temp][:day].round) }°C
@@ -24,7 +24,7 @@ class ForecastOpenweathermap
       Ветер:   #{ forecast_raw_data[:wind_speed] } м/с
       #{ forecast_raw_data[:weather][0][:description].capitalize }
       Вероятность осадков: #{ (forecast_raw_data[:pop]*100).to_i }%
-FORECAST
+    FORECAST
   end
 
   private
