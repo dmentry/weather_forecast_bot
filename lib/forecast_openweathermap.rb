@@ -25,7 +25,8 @@ class ForecastOpenweathermap
       Ветер:   #{ forecast_raw_data_today[:wind_speed] } м/с
       #{ forecast_raw_data_today[:weather][0][:description].capitalize }
       Вероятность осадков: #{ (forecast_raw_data_today[:pop]*100).to_i }%
-      #{ @city_name } - прогноз погоды на #{ Time.at(forecast_raw_data_tomorrow[:dt]).strftime("%d.%m.%Y") }:
+
+      Прогноз погоды на #{ Time.at(forecast_raw_data_tomorrow[:dt]).strftime("%d.%m.%Y") }:
       Утром:   #{ temperature_human(forecast_raw_data_tomorrow[:temp][:morn].round) }°C
       Днем:    #{ temperature_human(forecast_raw_data_tomorrow[:temp][:day].round) }°C
       Вечером: #{ temperature_human(forecast_raw_data_tomorrow[:temp][:eve].round) }°C
