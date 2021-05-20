@@ -5,15 +5,6 @@
 ![Application screenshot](https://github.com/dmentry/WeatherForecastBot/blob/master/Screenshot.jpg)
 
 ## Потестировать бота
-Клонировать или скачать репозиторий
-
-```
-bundle install
-```
-
-```
-main.rb
-```
 Пройти по ссылке
 https://t.me/city_weath_bot
 
@@ -25,6 +16,15 @@ https://t.me/city_weath_bot
 * gem "telegram-bot-ruby"
 
 ## Перед запуском
+Клонировать или скачать репозиторий
+
+```
+bundle install
+```
+
+```
+main.rb
+```
 
 ```
 bundle install
