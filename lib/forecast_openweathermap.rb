@@ -25,48 +25,48 @@ class ForecastOpenweathermap
         forecast_now = <<~FORECAST1
         #{ @city_name }:
         Прогноз погоды на сегодня:
-        Утром:   #{ temperature_human(forecast_raw_data_today[:temp][:morn].round) }°C
-        Днем:    #{ temperature_human(forecast_raw_data_today[:temp][:day].round) }°C
-        Вечером: #{ temperature_human(forecast_raw_data_today[:temp][:eve].round) }°C
-        Ночью:   #{ temperature_human(forecast_raw_data_today[:temp][:night].round) }°C
+         Утром:   #{ temperature_human(forecast_raw_data_today[:temp][:morn].round) }°C
+         Днем:    #{ temperature_human(forecast_raw_data_today[:temp][:day].round) }°C
+         Вечером: #{ temperature_human(forecast_raw_data_today[:temp][:eve].round) }°C
+         Ночью:   #{ temperature_human(forecast_raw_data_today[:temp][:night].round) }°C
 FORECAST1
       when 9..13
         forecast_now = <<~FORECAST1
         #{ @city_name }:
         Прогноз погоды на сегодня:
-        Днем:    #{ temperature_human(forecast_raw_data_today[:temp][:day].round) }°C
-        Вечером: #{ temperature_human(forecast_raw_data_today[:temp][:eve].round) }°C
-        Ночью:   #{ temperature_human(forecast_raw_data_today[:temp][:night].round) }°C
+         Днем:    #{ temperature_human(forecast_raw_data_today[:temp][:day].round) }°C
+         Вечером: #{ temperature_human(forecast_raw_data_today[:temp][:eve].round) }°C
+         Ночью:   #{ temperature_human(forecast_raw_data_today[:temp][:night].round) }°C
 FORECAST1
       when 14..17
         forecast_now = <<~FORECAST1
         #{ @city_name }:
         Прогноз погоды на сегодня:
-        Вечером: #{ temperature_human(forecast_raw_data_today[:temp][:eve].round) }°C
-        Ночью:   #{ temperature_human(forecast_raw_data_today[:temp][:night].round) }°C
+         Вечером: #{ temperature_human(forecast_raw_data_today[:temp][:eve].round) }°C
+         Ночью:   #{ temperature_human(forecast_raw_data_today[:temp][:night].round) }°C
 FORECAST1
       when 18..23
         forecast_now = <<~FORECAST1
         #{ @city_name }:
         Прогноз погоды на сегодня:
-        Ночью:   #{ temperature_human(forecast_raw_data_today[:temp][:night].round) }°C
+         Ночью:   #{ temperature_human(forecast_raw_data_today[:temp][:night].round) }°C
 FORECAST1
       end
 
       forecast_now_2 = <<~FORECAST2
-      Ветер:   #{ forecast_raw_data_today[:wind_speed] } м/с
-      В течение дня: #{ forecast_raw_data_today[:weather][0][:description] }, вероятность: #{ (forecast_raw_data_today[:pop]*100).to_i }%
+       Ветер:   #{ forecast_raw_data_today[:wind_speed] } м/с
+       В течение дня: #{ forecast_raw_data_today[:weather][0][:description] }, вероятность: #{ (forecast_raw_data_today[:pop]*100).to_i }%
 FORECAST2
 
       forecast_tomorrow = <<~FORECAST3
 
       Прогноз погоды на #{ Time.at(forecast_raw_data_tomorrow[:dt]).strftime("%d.%m.%Y") }:
-      Утром:   #{ temperature_human(forecast_raw_data_tomorrow[:temp][:morn].round) }°C
-      Днем:    #{ temperature_human(forecast_raw_data_tomorrow[:temp][:day].round) }°C
-      Вечером: #{ temperature_human(forecast_raw_data_tomorrow[:temp][:eve].round) }°C
-      Ночью:   #{ temperature_human(forecast_raw_data_tomorrow[:temp][:night].round) }°C
-      Ветер:   #{ forecast_raw_data_tomorrow[:wind_speed] } м/с
-      #{ forecast_raw_data_tomorrow[:weather][0][:description].capitalize }, вероятность: #{ (forecast_raw_data_tomorrow[:pop]*100).to_i }%
+       Утром:   #{ temperature_human(forecast_raw_data_tomorrow[:temp][:morn].round) }°C
+       Днем:    #{ temperature_human(forecast_raw_data_tomorrow[:temp][:day].round) }°C
+       Вечером: #{ temperature_human(forecast_raw_data_tomorrow[:temp][:eve].round) }°C
+       Ночью:   #{ temperature_human(forecast_raw_data_tomorrow[:temp][:night].round) }°C
+       Ветер:   #{ forecast_raw_data_tomorrow[:wind_speed] } м/с
+       #{ forecast_raw_data_tomorrow[:weather][0][:description].capitalize }, вероятность: #{ (forecast_raw_data_tomorrow[:pop]*100).to_i }%
 FORECAST3
 
       "#{ forecast_now + forecast_now_2 + forecast_tomorrow }"
