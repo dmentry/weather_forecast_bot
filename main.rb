@@ -4,7 +4,7 @@ require_relative 'lib/forecast_openweathermap'
 
 tg_bot_token = ENV['TELEGRAM_BOT_API_TOKEN']
 
-cities = { "Москва" => [55.7532, 37.6252], "Железнодорожный" => [55.7471, 38.0224], "Майкоп" => [44.6107, 40.1058] }
+cities = { "Железнодорожный" => [55.7471, 38.0224], "Москва" => [55.7532, 37.6252], "Майкоп" => [44.6107, 40.1058] }
 
 Telegram::Bot::Client.run(tg_bot_token) do |bot|
   bot.listen do |message|

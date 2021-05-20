@@ -14,15 +14,41 @@ class ForecastOpenweathermap
   def daily_temp
     # температура на остаток текущего дня и следующие сутки
       forecast_raw_data_today = weather_json[:daily][0]
+
       forecast_raw_data_tomorrow = weather_json[:daily][1]
 
+      temp_morning = ''
+      temp_day = ''
+      temp_evening = ''
+      temp_night = ''
+
+      hour = Time.now.hour
+
+      case hour
+
+      when 0..8
+        temp_morning = "Утром:   #{ temperature_human(forecast_raw_data_today[:temp][:morn].round) }°C"
+        temp_day = "Днем:    #{ temperature_human(forecast_raw_data_today[:temp][:day].round) }°C"
+        temp_evening = "Вечером: #{ temperature_human(forecast_raw_data_today[:temp][:eve].round) }°C"
+        temp_night = "Ночью:   #{ temperature_human(forecast_raw_data_today[:temp][:night].round) }°C"
+      when 9..13
+        temp_day = "Днем:    #{ temperature_human(forecast_raw_data_today[:temp][:day].round) }°C"
+        temp_evening = "Вечером: #{ temperature_human(forecast_raw_data_today[:temp][:eve].round) }°C"
+        temp_night = "Ночью:   #{ temperature_human(forecast_raw_data_today[:temp][:night].round) }°C"
+      when 14..17
+        temp_evening = "Вечером: #{ temperature_human(forecast_raw_data_today[:temp][:eve].round) }°C"
+        temp_night = "Ночью:   #{ temperature_human(forecast_raw_data_today[:temp][:night].round) }°C"
+      when 18..24
+        temp_night = "Ночью:   #{ temperature_human(forecast_raw_data_today[:temp][:night].round) }°C"
+      end
+
     <<-FORECAST
-      #{ @city_name }
+      #{ @city_name }:
       Прогноз погоды на сегодня:
-      Утром:   #{ temperature_human(forecast_raw_data_today[:temp][:morn].round) }°C
-      Днем:    #{ temperature_human(forecast_raw_data_today[:temp][:day].round) }°C
-      Вечером: #{ temperature_human(forecast_raw_data_today[:temp][:eve].round) }°C
-      Ночью:   #{ temperature_human(forecast_raw_data_today[:temp][:night].round) }°C
+      #{ temp_morning }
+      #{ temp_day }
+      #{ temp_evening }
+      #{ temp_night }
       Ветер:   #{ forecast_raw_data_today[:wind_speed] } м/с
       #{ forecast_raw_data_today[:weather][0][:description].capitalize }
       Вероятность осадков: #{ (forecast_raw_data_today[:pop]*100).to_i }%
@@ -36,6 +62,27 @@ class ForecastOpenweathermap
       #{ forecast_raw_data_tomorrow[:weather][0][:description].capitalize }
       Вероятность осадков: #{ (forecast_raw_data_tomorrow[:pop]*100).to_i }%
     FORECAST
+
+    # <<-FORECAST
+    #   #{ @city_name }:
+    #   Прогноз погоды на сегодня:
+    #   Утром:   #{ temperature_human(forecast_raw_data_today[:temp][:morn].round) }°C
+    #   Днем:    #{ temperature_human(forecast_raw_data_today[:temp][:day].round) }°C
+    #   Вечером: #{ temperature_human(forecast_raw_data_today[:temp][:eve].round) }°C
+    #   Ночью:   #{ temperature_human(forecast_raw_data_today[:temp][:night].round) }°C
+    #   Ветер:   #{ forecast_raw_data_today[:wind_speed] } м/с
+    #   #{ forecast_raw_data_today[:weather][0][:description].capitalize }
+    #   Вероятность осадков: #{ (forecast_raw_data_today[:pop]*100).to_i }%
+
+    #   Прогноз погоды на #{ Time.at(forecast_raw_data_tomorrow[:dt]).strftime("%d.%m.%Y") }:
+    #   Утром:   #{ temperature_human(forecast_raw_data_tomorrow[:temp][:morn].round) }°C
+    #   Днем:    #{ temperature_human(forecast_raw_data_tomorrow[:temp][:day].round) }°C
+    #   Вечером: #{ temperature_human(forecast_raw_data_tomorrow[:temp][:eve].round) }°C
+    #   Ночью:   #{ temperature_human(forecast_raw_data_tomorrow[:temp][:night].round) }°C
+    #   Ветер:   #{ forecast_raw_data_tomorrow[:wind_speed] } м/с
+    #   #{ forecast_raw_data_tomorrow[:weather][0][:description].capitalize }
+    #   Вероятность осадков: #{ (forecast_raw_data_tomorrow[:pop]*100).to_i }%
+    # FORECAST
   end
 
   private
