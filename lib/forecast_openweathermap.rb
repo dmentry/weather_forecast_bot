@@ -17,11 +17,6 @@ class ForecastOpenweathermap
 
       forecast_raw_data_tomorrow = weather_json[:daily][1]
 
-      temp_morning = ''
-      temp_day = ''
-      temp_evening = ''
-      temp_night = ''
-
       hour = Time.now.hour
 
       case hour
@@ -42,26 +37,50 @@ class ForecastOpenweathermap
         temp_night = "Ночью:   #{ temperature_human(forecast_raw_data_today[:temp][:night].round) }°C"
       end
 
-    <<-FORECAST
+      forecast_now = <<~FORECAST1
       #{ @city_name }:
       Прогноз погоды на сегодня:
       #{ temp_morning }
       #{ temp_day }
       #{ temp_evening }
       #{ temp_night }
-      Ветер:   #{ forecast_raw_data_today[:wind_speed] } м/с
-      #{ forecast_raw_data_today[:weather][0][:description].capitalize }
-      Вероятность осадков: #{ (forecast_raw_data_today[:pop]*100).to_i }%
+      Ветер:   7 м/с
+      Вероятность осадков: #{ 0.6*100.to_i }%
+FORECAST1
 
-      Прогноз погоды на #{ Time.at(forecast_raw_data_tomorrow[:dt]).strftime("%d.%m.%Y") }:
-      Утром:   #{ temperature_human(forecast_raw_data_tomorrow[:temp][:morn].round) }°C
-      Днем:    #{ temperature_human(forecast_raw_data_tomorrow[:temp][:day].round) }°C
-      Вечером: #{ temperature_human(forecast_raw_data_tomorrow[:temp][:eve].round) }°C
-      Ночью:   #{ temperature_human(forecast_raw_data_tomorrow[:temp][:night].round) }°C
-      Ветер:   #{ forecast_raw_data_tomorrow[:wind_speed] } м/с
-      #{ forecast_raw_data_tomorrow[:weather][0][:description].capitalize }
-      Вероятность осадков: #{ (forecast_raw_data_tomorrow[:pop]*100).to_i }%
-    FORECAST
+      forecast_tomorrow = <<~FORECAST2
+
+      Прогноз погоды на 22.05.2022:
+      Утром:   Утром:   5°C
+      Днем:    Днем:    10°C
+      Вечером: Вечером: 8°C
+      Ночью:   Ночью:   3°C
+      Ветер:   5 м/с
+      Вероятность осадков: #{ 0.55*100.to_i }%
+FORECAST2
+
+      "#{ forecast_now.gsub(/^$\n/, '') + forecast_tomorrow }"
+
+    # <<-FORECAST
+    #   #{ @city_name }:
+    #   Прогноз погоды на сегодня:
+    #   #{ temp_morning }
+    #   #{ temp_day }
+    #   #{ temp_evening }
+    #   #{ temp_night }
+    #   Ветер:   #{ forecast_raw_data_today[:wind_speed] } м/с
+    #   #{ forecast_raw_data_today[:weather][0][:description].capitalize }
+    #   Вероятность осадков: #{ (forecast_raw_data_today[:pop]*100).to_i }%
+
+    #   Прогноз погоды на #{ Time.at(forecast_raw_data_tomorrow[:dt]).strftime("%d.%m.%Y") }:
+    #   Утром:   #{ temperature_human(forecast_raw_data_tomorrow[:temp][:morn].round) }°C
+    #   Днем:    #{ temperature_human(forecast_raw_data_tomorrow[:temp][:day].round) }°C
+    #   Вечером: #{ temperature_human(forecast_raw_data_tomorrow[:temp][:eve].round) }°C
+    #   Ночью:   #{ temperature_human(forecast_raw_data_tomorrow[:temp][:night].round) }°C
+    #   Ветер:   #{ forecast_raw_data_tomorrow[:wind_speed] } м/с
+    #   #{ forecast_raw_data_tomorrow[:weather][0][:description].capitalize }
+    #   Вероятность осадков: #{ (forecast_raw_data_tomorrow[:pop]*100).to_i }%
+    # FORECAST
 
     # <<-FORECAST
     #   #{ @city_name }:
