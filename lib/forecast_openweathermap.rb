@@ -17,7 +17,8 @@ class ForecastOpenweathermap
       forecast_raw_data_tomorrow = weather_json[:daily][1]
 
     <<-FORECAST
-      #{ @city_name } - прогноз погоды на сегодня:
+      #{ @city_name }
+      Прогноз погоды на сегодня:
       Утром:   #{ temperature_human(forecast_raw_data_today[:temp][:morn].round) }°C
       Днем:    #{ temperature_human(forecast_raw_data_today[:temp][:day].round) }°C
       Вечером: #{ temperature_human(forecast_raw_data_today[:temp][:eve].round) }°C
