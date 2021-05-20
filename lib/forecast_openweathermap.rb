@@ -45,7 +45,7 @@ FORECAST1
         Вечером: #{ temperature_human(forecast_raw_data_today[:temp][:eve].round) }°C
         Ночью:   #{ temperature_human(forecast_raw_data_today[:temp][:night].round) }°C
 FORECAST1
-      when 18..24
+      when 18..23
         forecast_now = <<~FORECAST1
         #{ @city_name }:
         Прогноз погоды на сегодня:
@@ -66,8 +66,7 @@ FORECAST2
       Вечером: #{ temperature_human(forecast_raw_data_tomorrow[:temp][:eve].round) }°C
       Ночью:   #{ temperature_human(forecast_raw_data_tomorrow[:temp][:night].round) }°C
       Ветер:   #{ forecast_raw_data_tomorrow[:wind_speed] } м/с
-      #{ forecast_raw_data_tomorrow[:weather][0][:description].capitalize }
-      Вероятность осадков: #{ (forecast_raw_data_tomorrow[:pop]*100).to_i }%
+      #{ forecast_raw_data_tomorrow[:weather][0][:description].capitalize }, вероятность: #{ (forecast_raw_data_tomorrow[:pop]*100).to_i }%
 FORECAST3
 
       "#{ forecast_now + forecast_now_2 + forecast_tomorrow }"
