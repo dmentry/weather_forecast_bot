@@ -25,31 +25,31 @@ class ForecastOpenweathermap
         forecast_now = <<~FORECAST1
         #{ @city_name }:
         Прогноз погоды на сегодня:
-        temp_morning = "Утром:   #{ temperature_human(forecast_raw_data_today[:temp][:morn].round) }°C"
-        temp_day = "Днем:    #{ temperature_human(forecast_raw_data_today[:temp][:day].round) }°C"
-        temp_evening = "Вечером: #{ temperature_human(forecast_raw_data_today[:temp][:eve].round) }°C"
-        temp_night = "Ночью:   #{ temperature_human(forecast_raw_data_today[:temp][:night].round) }°C"
+        Утром:   #{ temperature_human(forecast_raw_data_today[:temp][:morn].round) }°C
+        Днем:    #{ temperature_human(forecast_raw_data_today[:temp][:day].round) }°C
+        Вечером: #{ temperature_human(forecast_raw_data_today[:temp][:eve].round) }°C
+        Ночью:   #{ temperature_human(forecast_raw_data_today[:temp][:night].round) }°C
 FORECAST1
       when 9..13
         forecast_now = <<~FORECAST1
         #{ @city_name }:
         Прогноз погоды на сегодня:
-        temp_day = "Днем:    #{ temperature_human(forecast_raw_data_today[:temp][:day].round) }°C"
-        temp_evening = "Вечером: #{ temperature_human(forecast_raw_data_today[:temp][:eve].round) }°C"
-        temp_night = "Ночью:   #{ temperature_human(forecast_raw_data_today[:temp][:night].round) }°C"
+        Днем:    #{ temperature_human(forecast_raw_data_today[:temp][:day].round) }°C
+        Вечером: #{ temperature_human(forecast_raw_data_today[:temp][:eve].round) }°C
+        Ночью:   #{ temperature_human(forecast_raw_data_today[:temp][:night].round) }°C
 FORECAST1
       when 14..17
         forecast_now = <<~FORECAST1
         #{ @city_name }:
         Прогноз погоды на сегодня:
-        temp_evening = "Вечером: #{ temperature_human(forecast_raw_data_today[:temp][:eve].round) }°C"
-        temp_night = "Ночью:   #{ temperature_human(forecast_raw_data_today[:temp][:night].round) }°C"
+        Вечером: #{ temperature_human(forecast_raw_data_today[:temp][:eve].round) }°C
+        Ночью:   #{ temperature_human(forecast_raw_data_today[:temp][:night].round) }°C
 FORECAST1
       when 18..24
         forecast_now = <<~FORECAST1
         #{ @city_name }:
         Прогноз погоды на сегодня:
-        temp_night = "Ночью:   #{ temperature_human(forecast_raw_data_today[:temp][:night].round) }°C"
+        Ночью:   #{ temperature_human(forecast_raw_data_today[:temp][:night].round) }°C
 FORECAST1
       end
 
