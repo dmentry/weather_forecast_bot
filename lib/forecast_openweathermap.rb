@@ -17,9 +17,7 @@ class ForecastOpenweathermap
 
       forecast_raw_data_tomorrow = weather_json[:daily][1]
 
-      hour = Time.now.hour
-
-      hour += 3
+      hour = Time.new.getlocal.hour
 
       case hour
 
