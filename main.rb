@@ -25,7 +25,7 @@ Telegram::Bot::Client.run(tg_bot_token) do |bot|
 
       Pony.mail({
         :subject => "Прогноз погоды",
-        :body => forecast.daily_temp,
+        :body => "Прогноз погоды",
         :to => MAIL_RECIEVER,
         :from => 'weather bot',
         :via => :smtp,
