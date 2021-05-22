@@ -27,13 +27,13 @@ Telegram::Bot::Client.run(tg_bot_token) do |bot|
         :subject => "Прогноз погоды",
         :body => forecast.daily_temp,
         :to => MAIL_RECIEVER,
-        :from => MAIL_ADDRESS,
+        :from => 'weather bot',
         :via => :smtp,
         :via_options => {
           :address => 'smtp.mail.ru',
           :port => '465',
           :tls => true,
-          :user_name => MAIL_ADDRESS,
+          :user_name => MAIL_USERNAME,
           :password => MAIL_PSW,
           :authentication => :plain
         }
