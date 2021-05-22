@@ -55,7 +55,7 @@ FORECAST1
 
       forecast_now_2 = <<~FORECAST2
       Ветер:   #{ forecast_raw_data_today[:wind_speed] } м/с
-      В течение дня: #{ forecast_raw_data_today[:weather][0][:description] }, вероятность: #{ (forecast_raw_data_today[:pop]*100).to_i }%
+      В течение дня: #{ forecast_raw_data_today[:weather][0][:description] }, вероятность осадков: #{ (forecast_raw_data_today[:pop]*100).to_i }%
 FORECAST2
 
       forecast_tomorrow = <<~FORECAST3
@@ -66,7 +66,7 @@ FORECAST2
       Вечером: #{ temperature_human(forecast_raw_data_tomorrow[:temp][:eve].round) }°C
       Ночью:   #{ temperature_human(forecast_raw_data_tomorrow[:temp][:night].round) }°C
       Ветер:   #{ forecast_raw_data_tomorrow[:wind_speed] } м/с
-      #{ forecast_raw_data_tomorrow[:weather][0][:description].capitalize }, вероятность: #{ (forecast_raw_data_tomorrow[:pop]*100).to_i }%
+      #{ forecast_raw_data_tomorrow[:weather][0][:description].capitalize }, вероятность осадков: #{ (forecast_raw_data_tomorrow[:pop]*100).to_i }%
 FORECAST3
 
       "#{ forecast_now + forecast_now_2 + forecast_tomorrow }"
