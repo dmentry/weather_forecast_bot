@@ -24,10 +24,10 @@ Telegram::Bot::Client.run(tg_bot_token) do |bot|
       bot.api.send_message(chat_id: message.chat.id, text: forecast.daily_temp)
 
       Pony.mail({
-        :subject => "Прогноз погоды",
-        :body => "Прогноз погоды",
+        :subject => 'Прогноз погоды',
+        :body => 'Прогноз погоды',
         :to => MAIL_RECIEVER,
-        :from => 'weather bot',
+        :from => MAIL_USERNAME,
         :via => :smtp,
         :via_options => {
           :address => 'smtp.mail.ru',
@@ -38,6 +38,7 @@ Telegram::Bot::Client.run(tg_bot_token) do |bot|
           :authentication => :plain
         }
       })
+      bot.api.send_message(chat_id: message.chat.id, text: 'Письмо отправлено')
     when '/2'
       choise = 2
 
