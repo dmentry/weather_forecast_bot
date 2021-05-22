@@ -22,7 +22,12 @@ GEM
     faraday-net_http_persistent (1.1.0)
     ice_nine (0.11.2)
     inflecto (0.0.2)
+    mail (2.7.1)
+      mini_mime (>= 0.1.1)
+    mini_mime (1.1.0)
     multipart-post (2.1.1)
+    pony (1.13.1)
+      mail (>= 2.0)
     ruby2_keywords (0.0.4)
     telegram-bot-ruby (0.15.0)
       faraday
@@ -40,6 +45,7 @@ PLATFORMS
 
 DEPENDENCIES
   dotenv
+  pony
   telegram-bot-ruby
 
 BUNDLED WITH
