@@ -25,7 +25,6 @@ class ForecastOpenweathermap
 
       when 0..8
         forecast_now = <<~FORECAST1
-        #{hour}
         #{ @city_name }:
         Прогноз погоды на сегодня:
         Утром:   #{ temperature_human(forecast_raw_data_today[:temp][:morn].round) }°C
@@ -35,7 +34,6 @@ class ForecastOpenweathermap
 FORECAST1
       when 9..13
         forecast_now = <<~FORECAST1
-        #{hour}
         #{ @city_name }:
         Прогноз погоды на сегодня:
         Днем:    #{ temperature_human(forecast_raw_data_today[:temp][:day].round) }°C
@@ -44,7 +42,6 @@ FORECAST1
 FORECAST1
       when 14..17
         forecast_now = <<~FORECAST1
-        #{hour}
         #{ @city_name }:
         Прогноз погоды на сегодня:
         Вечером: #{ temperature_human(forecast_raw_data_today[:temp][:eve].round) }°C
@@ -52,7 +49,6 @@ FORECAST1
 FORECAST1
       when 18..23
         forecast_now = <<~FORECAST1
-        #{hour}
         #{ @city_name }:
         Прогноз погоды на сегодня:
         Ночью:   #{ temperature_human(forecast_raw_data_today[:temp][:night].round) }°C
