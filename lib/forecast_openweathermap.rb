@@ -16,8 +16,10 @@ class ForecastOpenweathermap
       forecast_raw_data_today = weather_json[:daily][0]
 
       forecast_raw_data_tomorrow = weather_json[:daily][1]
+      # переводим с серверного в локальное время
+      hour = Time.now.hour + 3
 
-      hour = Time.new.getlocal.hour
+      hour -= 24 if hour > 23
 
       case hour
 
