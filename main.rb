@@ -11,7 +11,7 @@ Telegram::Bot::Client.run(tg_bot_token) do |bot|
   bot.listen do |message|
     case message.text
     when '/start'
-      bot.api.send_Message(chat_id: message.chat.id, text: "Привет, #{message.from.first_name}! Погоду для какого города вы хотите узнать? Выберите его из списка.")
+      bot.api.send_Message(chat_id: message.chat.id, text: "Привет, #{message.from.first_name}! Погоду для какого города вы хотите узнать? Выберите его из списка или введите сами.")
     when '/stop'
       bot.api.send_message(chat_id: message.chat.id, text: "Пока, #{message.from.first_name}!")
     when '/1'
@@ -40,7 +40,7 @@ Telegram::Bot::Client.run(tg_bot_token) do |bot|
 
       bot.api.send_message(chat_id: message.chat.id, text: forecast.daily_temp)
     else
-      uri = URI.parse("https://geocode-maps.yandex.ru/1.x/?apikey=yandex_api&format=json&geocode=#{URI.encode(message.text)}&results=3")
+      uri = URI.parse("https://geocode-maps.yandex.ru/1.x/?apikey=#{yandex_api}&format=json&geocode=#{URI.encode(message.text)}&results=3")
 
       response = Net::HTTP.get_response(uri)
 
@@ -70,9 +70,9 @@ Telegram::Bot::Client.run(tg_bot_token) do |bot|
           bot.api.send_message(chat_id: message.chat.id, text: forecast.daily_temp)
         end
 
-        bot.api.send_message(chat_id: message.chat.id, text: "Показывается три первых результата. Если вашего населенного пункта нет, введите его название с областью и/или районом")
+        bot.api.send_message(chat_id: message.chat.id, text: "Показывается не более трех первых результатов. Если вашего населенного пункта нет, введите его название с областью и/или районом.")
       else
-        bot.api.send_message(chat_id: message.chat.id, text: "Указанный город не найден")
+        bot.api.send_message(chat_id: message.chat.id, text: "Указанный населенный пункт не найден. Измените его название или введите другое.")
       end
     end
   end
