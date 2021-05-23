@@ -1,5 +1,4 @@
 require 'telegram/bot'
-require 'pony'
 require_relative 'lib/forecast_openweathermap'
 
 tg_bot_token = ENV['TELEGRAM_BOT_API_TOKEN']
@@ -21,25 +20,6 @@ Telegram::Bot::Client.run(tg_bot_token) do |bot|
       forecast = ForecastOpenweathermap.new(ENV['OPENWEATHERMAP_KEY'], city_coordinates, cities.keys[choise - 1])
 
       bot.api.send_message(chat_id: message.chat.id, text: forecast.daily_temp)
-
-      Pony.mail({
-        :subject => 'Прогноз погоды',
-        :body => 'Прогноз погоды',
-        :to => MAIL_RECIEVER,
-        :from => MAIL_USERNAME,
-        :via => :smtp,
-        :via_options => {
-          :address => 'smtp.mail.ru',
-          :port => '465',
-          :tls => true,
-          :user_name => MAIL_USERNAME,
-          :password => MAIL_PSW,
-          :authentication => :plain
-        }
-      })
-
-      bot.api.send_message(chat_id: message.chat.id, text: 'Письмо отправлено')
-
     when '/2'
       choise = 2
 
