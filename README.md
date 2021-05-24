@@ -16,7 +16,7 @@ https://t.me/city_weath_bot
 * gem "telegram-bot-ruby"
 
 ## Перед запуском
-Клонировать или скачать репозиторий
+Клонируйте или скачайте репозиторий
 
 ```
 bundle install
