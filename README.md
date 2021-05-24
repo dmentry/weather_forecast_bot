@@ -22,14 +22,6 @@ https://t.me/city_weath_bot
 bundle install
 ```
 
-```
-main.rb
-```
-
-```
-bundle install
-```
-
 Переименуйте `.env.example` в `.env`
 
 Зарегистрируйтесь на `https://openweathermap.org`, скопируйте оттуда токен и вставьте его в строку `OPENWEATHERMAP_KEY` вместо `your_token`
