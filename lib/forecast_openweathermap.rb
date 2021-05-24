@@ -1,7 +1,3 @@
-require 'dotenv/load'
-require 'net/http'
-require 'json'
-
 class ForecastOpenweathermap
   def initialize(token, coordinates, city_name)
     @token ||= token
