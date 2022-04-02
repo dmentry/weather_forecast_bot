@@ -1,36 +1,35 @@
-# Телеграм-бот "Прогноз погоды"
-Телеграм-бот показывает прогноз погоды на текущий и следующий день в выбранном городе. Можно ввести название самому или выбрать из списка. Если показывается одноименный населенный пункт, введите название с областью и/или районом.
+# Telegram bot "Weather forecast"
+Bot shows weather forecast for present and next day in chosen place. You can enter name of the place by yourself or choose from the list. Specify region/district/etc in case if there are some places with the similar names.
 
-## Скриншот
+## Screenshot
 ![Application screenshot](https://github.com/dmentry/WeatherForecastBot/blob/master/Screenshot.jpg)
 
-## Потестировать бота
-Пройти по ссылке
+## Test the bot
+Click the link
 https://t.me/city_weath_bot
 
-## Требования
+## Requirements
 * Ruby
 
 * gem "dotenv"
 
 * gem "telegram-bot-ruby"
 
-## Перед запуском
-Клонируйте или скачайте репозиторий
+## Before start
+Clone or download repository
 
 ```
 bundle install
 ```
 
-Переименуйте `.env.example` в `.env`
+Rename `.env.example` в `.env`
+Sign in at `https://openweathermap.org`, copy token and insert it into string `OPENWEATHERMAP_KEY` instead of `your_token`
 
-Зарегистрируйтесь на `https://openweathermap.org`, скопируйте оттуда токен и вставьте его в строку `OPENWEATHERMAP_KEY` вместо `your_token`
+Sign in at developer's section of Yandex, get the API Geocoder token and insert it into the string `YANDEX_API_KEY` instead of `your_token`
 
-Зарегистрируйтесь в кабинете разрабюотчика Яндекс, получите ключ API Геокодер и вставьте его в строку `YANDEX_API_KEY` вместо `your_token`
+Create your bot at `@BotFather`, get the token for it and insert it into string `TELEGRAM_BOT_API_TOKEN` instead of `your_token`
 
-Создайте своего бота у `@BotFather`, получите для него токен и вставьте его в строку `TELEGRAM_BOT_API_TOKEN` вместо `your_token`
-
-## Запустить
+## Run
 ```
 main.rb
 ```
