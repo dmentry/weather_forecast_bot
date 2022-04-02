@@ -22,7 +22,7 @@ Clone or download repository
 bundle install
 ```
 
-Rename `.env.example` в `.env`
+Rename `.env.example` into `.env`
 Sign in at `https://openweathermap.org`, copy token and insert it into string `OPENWEATHERMAP_KEY` instead of `your_token`
 
 Sign in at developer's section of Yandex, get the API Geocoder token and insert it into the string `YANDEX_API_KEY` instead of `your_token`
