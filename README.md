@@ -4,10 +4,6 @@ Bot shows weather forecast for present and next day in chosen place. You can ent
 ## Screenshot
 ![Application screenshot](https://github.com/dmentry/WeatherForecastBot/blob/master/Screenshot.jpg)
 
-## Test the bot
-Click the link
-https://t.me/city_weath_bot
-
 ## Requirements
 * Ruby
 
