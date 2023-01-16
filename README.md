@@ -6,9 +6,7 @@ Bot shows weather forecast for present and next day in chosen place. You can ent
 
 ## Requirements
 * Ruby
-
 * gem "dotenv"
-
 * gem "telegram-bot-ruby"
 
 ## Before start
@@ -31,4 +29,5 @@ main.rb
 ```
 
 ## ToDo
-Implement weather conditions' icons
+* Implement weather conditions' icons
+* Implement keys into menu

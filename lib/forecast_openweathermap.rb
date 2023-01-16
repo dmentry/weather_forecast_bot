@@ -34,9 +34,10 @@ class ForecastOpenweathermap
       wind_gust_tomorrow = ', порывы до ' + wind_gust_tomorrow.to_s + 'м/с.' if wind_gust_tomorrow
 
       # переводим с серверного в локальное время
-      hour = Time.now.hour + 3
+      # hour = Time.now.hour + 3
+      # hour -= 24 if hour > 23
 
-      hour -= 24 if hour > 23
+      hour = Time.now.hour
 
       case hour
 
