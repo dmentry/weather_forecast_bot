@@ -4,6 +4,7 @@ require_relative 'lib/yandex_coordinates'
 require 'dotenv/load'
 require 'net/http'
 require 'json'
+require 'date'
 
 tg_bot_token = ENV['TELEGRAM_BOT_API_TOKEN']
 
