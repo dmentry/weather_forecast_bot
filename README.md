@@ -29,3 +29,6 @@ Create your bot at `@BotFather`, get the token for it and insert it into string 
 ```
 main.rb
 ```
+
+## ToDo
+Implement weather conditions' icons
