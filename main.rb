@@ -7,10 +7,8 @@ require 'json'
 require 'date'
 
 tg_bot_token = ENV['TELEGRAM_BOT_API_TOKEN']
-
 yandex_api = ENV['YANDEX_API_KEY']
-
-cities = { "Железнодорожный" => [55.7471, 38.0224], "Москва" => [55.7532, 37.6252], "Майкоп" => [44.6107, 40.1058] }
+cities = { "Балашиха" => [55.7471, 38.0224], "Майкоп" => [44.6107, 40.1058], "Геленджик" => [44.5641, 38.08606] }
 
 Telegram::Bot::Client.run(tg_bot_token) do |bot|
   bot.listen do |message|
@@ -26,7 +24,7 @@ Telegram::Bot::Client.run(tg_bot_token) do |bot|
 
       forecast = ForecastOpenweathermap.new(ENV['OPENWEATHERMAP_KEY'], city_coordinates, cities.keys[choise - 1])
 
-      bot.api.send_message(chat_id: message.chat.id, text: forecast.daily_temp)
+      bot.api.send_message(chat_id: message.chat.id, text: forecast.daily_temp, parse_mode: 'HTML')
     when '/2'
       choise = 2
 
@@ -34,7 +32,7 @@ Telegram::Bot::Client.run(tg_bot_token) do |bot|
 
       forecast = ForecastOpenweathermap.new(ENV['OPENWEATHERMAP_KEY'], city_coordinates, cities.keys[choise - 1])
 
-      bot.api.send_message(chat_id: message.chat.id, text: forecast.daily_temp)
+      bot.api.send_message(chat_id: message.chat.id, text: forecast.daily_temp, parse_mode: 'HTML')
     when '/3'
       choise = 3
 
@@ -42,7 +40,7 @@ Telegram::Bot::Client.run(tg_bot_token) do |bot|
 
       forecast = ForecastOpenweathermap.new(ENV['OPENWEATHERMAP_KEY'], city_coordinates, cities.keys[choise - 1])
 
-      bot.api.send_message(chat_id: message.chat.id, text: forecast.daily_temp)
+      bot.api.send_message(chat_id: message.chat.id, text: forecast.daily_temp, parse_mode: 'HTML')
     else
       city_name = message.text
 
@@ -57,7 +55,7 @@ Telegram::Bot::Client.run(tg_bot_token) do |bot|
 
         forecast = ForecastOpenweathermap.new(ENV['OPENWEATHERMAP_KEY'], city_coordinates, city_name)
 
-        bot.api.send_message(chat_id: message.chat.id, text: forecast.daily_temp)
+        bot.api.send_message(chat_id: message.chat.id, text: forecast.daily_temp, parse_mode: 'HTML')
       end
     end
   end
