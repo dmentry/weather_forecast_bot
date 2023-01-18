@@ -9,9 +9,65 @@ class ForecastOpenweathermap
     @celsius = "\xE2\x84\x83"
   end
 
-  def daily_temp
-    # температура на остаток текущего дня и следующие сутки
-    forecast_raw_data_today = weather_json[:daily][0]
+  def forecast
+    forecast_raw_data = weather_json[:daily]
+
+    create_forecast(forecast_raw_data)
+  end
+
+  private
+
+  def weather_json
+    uri = URI.parse("https://api.openweathermap.org/data/2.5/onecall?lat=#{ @coordinates[0] }&lon=#{ @coordinates[1] }&units=metric&exclude=hourly,current,minutely,alerts&lang=ru&appid=#{ @token }")
+
+    response = Net::HTTP.get_response(uri)
+
+    JSON.parse(response.body, symbolize_names: true)
+  end
+
+  def temperature_human(ambient_temp)
+    if ambient_temp > 0
+      return "+#{ ambient_temp }"
+    else
+      return ambient_temp
+    end
+  end
+
+  def time_normalize(time)
+    DateTime.strptime((time + 3 * 60 * 60).to_s,'%s').strftime("%H:%M")
+  end
+
+  def wind_direction(degrees)
+    if (338..360).include?(degrees) || (0..23).include?(degrees)
+      # " северный, "
+      "\xE2\xAC\x86" + ', '
+    elsif (24..68).include?(degrees)
+      # " северо-восточный, "
+      "\xE2\x86\x97" + ', '
+    elsif (69..113).include?(degrees)
+      # " восточный, "
+      "\xE2\x9E\xA1" + ', '
+    elsif (114..158).include?(degrees)
+      # " юго-восточный, "
+      "\xE2\x86\x98" + ', '
+    elsif (159..203).include?(degrees)
+      # " южный, "
+      "\xE2\xAC\x87" + ', '
+    elsif (204..248).include?(degrees)
+      # " юго-западный, "
+      "\xE2\x86\x99"
+    elsif (249..293).include?(degrees)
+      # " западный, "
+      "\xE2\xAC\x85" + ', '
+    elsif (294..337).include?(degrees)
+      # " северо-западный, "
+      "\xE2\x86\x96" + ', '
+    end
+  end
+
+  def create_forecast(forecast_raw_data)
+    # температура на остаток текущего дня и следующие дни
+    forecast_raw_data_today = forecast_raw_data[0]
 
     precipitations_today = if forecast_raw_data_today[:rain]
                              forecast_raw_data_today[:rain]
@@ -25,7 +81,7 @@ class ForecastOpenweathermap
 
     wind_direction_today = wind_direction(forecast_raw_data_today[:wind_deg])
 
-    forecast_raw_data_tomorrow = weather_json[:daily][1]
+    forecast_raw_data_tomorrow = forecast_raw_data[1]
 
     precipitations_tomorrow = if forecast_raw_data_tomorrow[:rain]
                                 forecast_raw_data_tomorrow[:rain]
@@ -38,6 +94,20 @@ class ForecastOpenweathermap
     wind_gust_tomorrow = ', порывы до <b>' + wind_gust_tomorrow.to_s + 'м/с</b>' if wind_gust_tomorrow
 
     wind_direction_tomorrow = wind_direction(forecast_raw_data_tomorrow[:wind_deg])
+
+    forecast_raw_data_tomorrow_next = forecast_raw_data[2]
+
+    precipitations_tomorrow_next = if forecast_raw_data_tomorrow_next[:rain]
+                                     forecast_raw_data_tomorrow_next[:rain]
+                                   else
+                                     forecast_raw_data_tomorrow_next[:snow]
+                                   end
+    precipitations_tomorrow_next = ' (выпадет <b>' + precipitations_tomorrow_next.to_s  + 'мм</b>).' if precipitations_tomorrow_next
+
+    wind_gust_tomorrow_next = forecast_raw_data_tomorrow_next[:wind_gust].round if forecast_raw_data_tomorrow_next[:wind_gust]
+    wind_gust_tomorrow_next = ', порывы до <b>' + forecast_raw_data_tomorrow_next.to_s + 'м/с</b>' if forecast_raw_data_tomorrow_next
+
+    wind_direction_tomorrow_next = wind_direction(forecast_raw_data_tomorrow_next[:wind_deg])
 
     hour = Time.now.hour
 
@@ -111,7 +181,7 @@ FORECAST2
     Погодные данные на завтра, <b>#{ Time.at(forecast_raw_data_tomorrow[:dt]).strftime("%d.%m.%Y") }</b>:
     Восход:          <b>#{ time_normalize(forecast_raw_data_tomorrow[:sunrise]) }</b>.                  Закат: <b>#{ time_normalize(forecast_raw_data_tomorrow[:sunset]) }</b>
     Влажность:   <b>#{ forecast_raw_data_tomorrow[:humidity] }%</b>
-    Облачность: <b>#{ forecast_raw_data_today[:clouds] }%</b>
+    Облачность: <b>#{ forecast_raw_data_tomorrow[:clouds] }%</b>
     Утром:            <b>#{ temperature_human(forecast_raw_data_tomorrow[:temp][:morn].round) }</b>#{ @celsius }, ощущается, как <b>#{ temperature_human(forecast_raw_data_tomorrow[:feels_like][:morn].round) }</b>#{ @celsius }
     Днем:             <b>#{ temperature_human(forecast_raw_data_tomorrow[:temp][:day].round) }</b>#{ @celsius }, ощущается, как <b>#{ temperature_human(forecast_raw_data_tomorrow[:feels_like][:day].round) }</b>#{ @celsius }
     Вечером:       <b>#{ temperature_human(forecast_raw_data_tomorrow[:temp][:eve].round) }</b>#{ @celsius }, ощущается, как <b>#{ temperature_human(forecast_raw_data_tomorrow[:feels_like][:eve].round) }</b>#{ @celsius }
@@ -120,56 +190,20 @@ FORECAST2
     В течение дня: #{ forecast_raw_data_tomorrow[:weather][0][:description] },\nвероятность осадков: <b>#{ (forecast_raw_data_tomorrow[:pop]*100).to_i }%</b> #{ precipitations_tomorrow }
 FORECAST3
 
-    "#{ forecast_now + forecast_now_2 + forecast_tomorrow }"
-  end
+    forecast_tomorrow_next = <<~FORECAST4
 
-  private
+    Погодные данные на послезавтра, <b>#{ Time.at(forecast_raw_data_tomorrow_next[:dt]).strftime("%d.%m.%Y") }</b>:
+    Восход:          <b>#{ time_normalize(forecast_raw_data_tomorrow_next[:sunrise]) }</b>.                  Закат: <b>#{ time_normalize(forecast_raw_data_tomorrow_next[:sunset]) }</b>
+    Влажность:   <b>#{ forecast_raw_data_tomorrow_next[:humidity] }%</b>
+    Облачность: <b>#{ forecast_raw_data_tomorrow_next[:clouds] }%</b>
+    Утром:            <b>#{ temperature_human(forecast_raw_data_tomorrow_next[:temp][:morn].round) }</b>#{ @celsius }, ощущается, как <b>#{ temperature_human(forecast_raw_data_tomorrow_next[:feels_like][:morn].round) }</b>#{ @celsius }
+    Днем:             <b>#{ temperature_human(forecast_raw_data_tomorrow_next[:temp][:day].round) }</b>#{ @celsius }, ощущается, как <b>#{ temperature_human(forecast_raw_data_tomorrow_next[:feels_like][:day].round) }</b>#{ @celsius }
+    Вечером:       <b>#{ temperature_human(forecast_raw_data_tomorrow_next[:temp][:eve].round) }</b>#{ @celsius }, ощущается, как <b>#{ temperature_human(forecast_raw_data_tomorrow_next[:feels_like][:eve].round) }</b>#{ @celsius }
+    Ночью:           <b>#{ temperature_human(forecast_raw_data_tomorrow_next[:temp][:night].round) }</b>#{ @celsius }, ощущается, как <b>#{ temperature_human(forecast_raw_data_tomorrow_next[:feels_like][:night].round) }</b>#{ @celsius }
+    Ветер:             #{ wind_direction_tomorrow }<b>#{ forecast_raw_data_tomorrow_next[:wind_speed].round }м/с</b>#{ wind_gust_tomorrow }
+    В течение дня: #{ forecast_raw_data_tomorrow_next[:weather][0][:description] },\nвероятность осадков: <b>#{ (forecast_raw_data_tomorrow_next[:pop]*100).to_i }%</b> #{ precipitations_tomorrow_next }
+FORECAST4
 
-  def weather_json
-    uri = URI.parse("https://api.openweathermap.org/data/2.5/onecall?lat=#{ @coordinates[0] }&lon=#{ @coordinates[1] }&units=metric&exclude=hourly,current,minutely,alerts&lang=ru&appid=#{ @token }")
-
-    response = Net::HTTP.get_response(uri)
-
-    JSON.parse(response.body, symbolize_names: true)
-  end
-
-  def temperature_human(ambient_temp)
-    if ambient_temp > 0
-      return "+#{ ambient_temp }"
-    else
-      return ambient_temp
-    end
-  end
-
-  def time_normalize(time)
-    DateTime.strptime((time + 3 * 60 * 60).to_s,'%s').strftime("%H:%M")
-  end
-
-  def wind_direction(degrees)
-    if (338..360).include?(degrees) || (0..23).include?(degrees)
-      # " северный, "
-      "\xE2\xAC\x86" + ', '
-    elsif (24..68).include?(degrees)
-      # " северо-восточный, "
-      "\xE2\x86\x97" + ', '
-    elsif (69..113).include?(degrees)
-      # " восточный, "
-      "\xE2\x9E\xA1" + ', '
-    elsif (114..158).include?(degrees)
-      # " юго-восточный, "
-      "\xE2\x86\x98" + ', '
-    elsif (159..203).include?(degrees)
-      # " южный, "
-      "\xE2\xAC\x87" + ', '
-    elsif (204..248).include?(degrees)
-      # " юго-западный, "
-      "\xE2\x86\x99"
-    elsif (249..293).include?(degrees)
-      # " западный, "
-      "\xE2\xAC\x85" + ', '
-    elsif (294..337).include?(degrees)
-      # " северо-западный, "
-      "\xE2\x86\x96" + ', '
-    end
+    "#{ forecast_now + forecast_now_2 + forecast_tomorrow + forecast_tomorrow_next }"    
   end
 end
