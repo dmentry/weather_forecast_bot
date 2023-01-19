@@ -68,48 +68,29 @@ class ForecastOpenweathermap
   def create_forecast(forecast_raw_data)
     # температура на остаток текущего дня и следующие дни
     forecast_raw_data_today = forecast_raw_data[0]
-
-    precipitations_today = if forecast_raw_data_today[:rain]
-                             forecast_raw_data_today[:rain]
-                           else
-                             forecast_raw_data_today[:snow]
-                           end
-    precipitations_today = ' (выпадет <b>' + precipitations_today.to_s  + 'мм</b>).' if precipitations_today
-
-    wind_gust_today = forecast_raw_data_today[:wind_gust].round if forecast_raw_data_today[:wind_gust]
-    wind_gust_today = ', порывы до <b>' + wind_gust_today.to_s + 'м/с</b>' if wind_gust_today
-
-    wind_direction_today = wind_direction(forecast_raw_data_today[:wind_deg])
+    today_forecast = create_dayly_forecast(forecast: forecast_raw_data_today, today: true)
 
     forecast_raw_data_tomorrow = forecast_raw_data[1]
+    tomorrow_forecast = create_dayly_forecast(forecast: forecast_raw_data_tomorrow)
 
-    precipitations_tomorrow = if forecast_raw_data_tomorrow[:rain]
-                                forecast_raw_data_tomorrow[:rain]
-                              else
-                                forecast_raw_data_tomorrow[:snow]
-                              end
-    precipitations_tomorrow = ' (выпадет <b>' + precipitations_tomorrow.to_s  + 'мм</b>).' if precipitations_tomorrow
+    forecast_raw_data_after_tomorrow = forecast_raw_data[2]
+    after_tomorrow_forecast = create_dayly_forecast(forecast: forecast_raw_data_after_tomorrow)
 
-    wind_gust_tomorrow = forecast_raw_data_tomorrow[:wind_gust].round if forecast_raw_data_tomorrow[:wind_gust]
-    wind_gust_tomorrow = ', порывы до <b>' + wind_gust_tomorrow.to_s + 'м/с</b>' if wind_gust_tomorrow
+    "#{ today_forecast[:forecast_now] + tomorrow_forecast[:forecast_next] + after_tomorrow_forecast[:forecast_next] }"  
+  end
 
-    wind_direction_tomorrow = wind_direction(forecast_raw_data_tomorrow[:wind_deg])
+  def create_dayly_forecast(forecast:, today: false)
+    precipitations = if forecast[:rain]
+                       forecast[:rain]
+                     else
+                       forecast[:snow]
+                     end
+    precipitations = ' (выпадет <b>' + precipitations.to_s  + 'мм</b>).' if precipitations
 
-    forecast_raw_data_tomorrow_next = forecast_raw_data[2]
+    wind_gust = forecast[:wind_gust].round if forecast[:wind_gust]
+    wind_gust = ', порывы до <b>' + wind_gust.to_s + 'м/с</b>' if wind_gust
 
-    precipitations_tomorrow_next = if forecast_raw_data_tomorrow_next[:rain]
-                                     forecast_raw_data_tomorrow_next[:rain]
-                                   else
-                                     forecast_raw_data_tomorrow_next[:snow]
-                                   end
-    precipitations_tomorrow_next = ' (выпадет <b>' + precipitations_tomorrow_next.to_s  + 'мм</b>).' if precipitations_tomorrow_next
-
-    wind_gust_tomorrow_next = forecast_raw_data_tomorrow_next[:wind_gust].round if forecast_raw_data_tomorrow_next[:wind_gust]
-    wind_gust_tomorrow_next = ', порывы до <b>' + forecast_raw_data_tomorrow_next.to_s + 'м/с</b>' if forecast_raw_data_tomorrow_next
-
-    wind_direction_tomorrow_next = wind_direction(forecast_raw_data_tomorrow_next[:wind_deg])
-
-    hour = Time.now.hour
+    wind_direction = wind_direction(forecast[:wind_deg])
 
     # Убрать все точки в конце, если они есть, сделать первую букву заглавной и стиль шрифта - жирный
     @city_name = @city_name.gsub(/\.{1,}\z/, '') if @city_name.match?(/\.{1,}\z/)
@@ -117,93 +98,98 @@ class ForecastOpenweathermap
     @city_name[0] = @city_name[0].capitalize
     @city_name = '<b>' + @city_name + '</b>'
 
-    header    = "Погодные данные на сегодня, <b>#{ Time.at(forecast_raw_data_today[:dt]).strftime("%d.%m.%Y") }</b>:"
-    sun       = "Восход:          <b>#{ time_normalize(forecast_raw_data_today[:sunrise]) }</b>.                    Закат: <b>#{ time_normalize(forecast_raw_data_today[:sunset]) }</b>"
-    humidity  = "Влажность:   <b>#{ forecast_raw_data_today[:humidity] }%</b>"
-    cloudness = "Облачность: <b>#{ forecast_raw_data_today[:clouds] }%</b>"
-    morning   = "Утром:            <b>#{ temperature_human(forecast_raw_data_today[:temp][:morn].round) }</b>#{ @celsius }, ощущается, как <b>#{ temperature_human(forecast_raw_data_today[:feels_like][:morn].round) }</b>#{ @celsius }"
-    day       = "Днем:             <b>#{ temperature_human(forecast_raw_data_today[:temp][:day].round) }</b>#{ @celsius }, ощущается, как <b>#{ temperature_human(forecast_raw_data_today[:feels_like][:day].round) }</b>#{ @celsius }"
-    evening   = "Вечером:       <b>#{ temperature_human(forecast_raw_data_today[:temp][:eve].round) }</b>#{ @celsius }, ощущается, как <b>#{ temperature_human(forecast_raw_data_today[:feels_like][:eve].round) }</b>#{ @celsius }"
-    night     = "Ночью:           <b>#{ temperature_human(forecast_raw_data_today[:temp][:night].round) }</b>#{ @celsius }, ощущается, как <b>#{ temperature_human(forecast_raw_data_today[:feels_like][:night].round) }</b>#{ @celsius }"
+    forecast_date = Time.at(forecast[:dt]).to_date
+    forecast_day_name_rus = if forecast_date == Date.today
+                              'сегодня'
+                            elsif forecast_date == Date.today + 1
+                              'завтра'
+                            else
+                              'послезавтра'
+                            end
 
-    case hour
-    when 0..8
-      forecast_now = <<~FORECAST1
-      #{ @city_name }.
-      #{ header }
-      #{ sun }
-      #{ humidity }
-      #{ cloudness }
-      #{ morning }
-      #{ day }
-      #{ evening }
-      #{ night }
-FORECAST1
-    when 9..13
-      forecast_now = <<~FORECAST1
-      #{ @city_name }.
-      #{ header }
-      #{ sun }
-      #{ humidity }
-      #{ cloudness }
-      #{ day }
-      #{ evening }
-      #{ night }
-FORECAST1
-    when 14..17
-      forecast_now = <<~FORECAST1
-      #{ @city_name }.
-      #{ header }
-      #{ sun }
-      #{ humidity }
-      #{ cloudness }
-      #{ evening }
-      #{ night }
-FORECAST1
-    when 18..23
-      forecast_now = <<~FORECAST1
-      #{ @city_name }.
-      #{ header }
-      #{ sun }
-      #{ humidity }
-      #{ cloudness }
-      #{ night }
-FORECAST1
-    end
+    header        = "Погодные данные на #{ forecast_day_name_rus }, <b>#{ Time.at(forecast[:dt]).strftime("%d.%m.%Y") }</b>:"
+    sun           = "Восход:          <b>#{ time_normalize(forecast[:sunrise]) }</b>.                    Закат: <b>#{ time_normalize(forecast[:sunset]) }</b>"
+    humidity      = "Влажность:   <b>#{ forecast[:humidity] }%</b>"
+    cloudness     = "Облачность: <b>#{ forecast[:clouds] }%</b>"
+    morning       = "Утром:            <b>#{ temperature_human(forecast[:temp][:morn].round) }</b>#{ @celsius }, ощущается, как <b>#{ temperature_human(forecast[:feels_like][:morn].round) }</b>#{ @celsius }"
+    day           = "Днем:             <b>#{ temperature_human(forecast[:temp][:day].round) }</b>#{ @celsius }, ощущается, как <b>#{ temperature_human(forecast[:feels_like][:day].round) }</b>#{ @celsius }"
+    evening       = "Вечером:       <b>#{ temperature_human(forecast[:temp][:eve].round) }</b>#{ @celsius }, ощущается, как <b>#{ temperature_human(forecast[:feels_like][:eve].round) }</b>#{ @celsius }"
+    night         = "Ночью:           <b>#{ temperature_human(forecast[:temp][:night].round) }</b>#{ @celsius }, ощущается, как <b>#{ temperature_human(forecast[:feels_like][:night].round) }</b>#{ @celsius }"
+    wind          = "Ветер:             #{ wind_direction }<b>#{ forecast[:wind_speed].round } м/с</b>#{ wind_gust }"
+    precipitation = "В течение дня: #{ forecast[:weather][0][:description] },\nвероятность осадков: <b>#{ (forecast[:pop]*100).to_i }%</b> #{ precipitations }"
 
-    forecast_now_2 = <<~FORECAST2
-    Ветер:             #{ wind_direction_today }<b>#{ forecast_raw_data_today[:wind_speed].round } м/с</b>#{ wind_gust_today }
-    В течение дня: #{ forecast_raw_data_today[:weather][0][:description] },\nвероятность осадков: <b>#{ (forecast_raw_data_today[:pop]*100).to_i }%</b> #{ precipitations_today }
-FORECAST2
+    out = if forecast_day_name_rus == 'сегодня'
+            case Time.now.hour
+            when 0..8
+              forecast_now = <<~FORECAST1
+              #{ @city_name }.
+              #{ header }
+              #{ sun }
+              #{ humidity }
+              #{ cloudness }
+              #{ morning }
+              #{ day }
+              #{ evening }
+              #{ night }
+              #{ wind }
+              #{ precipitation }
+FORECAST1
+            when 9..13
+              forecast_now = <<~FORECAST1
+              #{ @city_name }.
+              #{ header }
+              #{ sun }
+              #{ humidity }
+              #{ cloudness }
+              #{ day }
+              #{ evening }
+              #{ night }
+              #{ wind }
+              #{ precipitation }
+FORECAST1
+            when 14..17
+              forecast_now = <<~FORECAST1
+              #{ @city_name }.
+              #{ header }
+              #{ sun }
+              #{ humidity }
+              #{ cloudness }
+              #{ evening }
+              #{ night }
+              #{ wind }
+              #{ precipitation }
+FORECAST1
+            when 18..23
+              forecast_now = <<~FORECAST1
+              #{ @city_name }.
+              #{ header }
+              #{ sun }
+              #{ humidity }
+              #{ cloudness }
+              #{ night }
+              #{ wind }
+              #{ precipitation }
+FORECAST1
+            end
 
-    forecast_tomorrow = <<~FORECAST3
+            { forecast_now: forecast_now }
+          else
+            forecast_next = <<~FORECAST3
 
-    Погодные данные на завтра, <b>#{ Time.at(forecast_raw_data_tomorrow[:dt]).strftime("%d.%m.%Y") }</b>:
-    Восход:          <b>#{ time_normalize(forecast_raw_data_tomorrow[:sunrise]) }</b>.                  Закат: <b>#{ time_normalize(forecast_raw_data_tomorrow[:sunset]) }</b>
-    Влажность:   <b>#{ forecast_raw_data_tomorrow[:humidity] }%</b>
-    Облачность: <b>#{ forecast_raw_data_tomorrow[:clouds] }%</b>
-    Утром:            <b>#{ temperature_human(forecast_raw_data_tomorrow[:temp][:morn].round) }</b>#{ @celsius }, ощущается, как <b>#{ temperature_human(forecast_raw_data_tomorrow[:feels_like][:morn].round) }</b>#{ @celsius }
-    Днем:             <b>#{ temperature_human(forecast_raw_data_tomorrow[:temp][:day].round) }</b>#{ @celsius }, ощущается, как <b>#{ temperature_human(forecast_raw_data_tomorrow[:feels_like][:day].round) }</b>#{ @celsius }
-    Вечером:       <b>#{ temperature_human(forecast_raw_data_tomorrow[:temp][:eve].round) }</b>#{ @celsius }, ощущается, как <b>#{ temperature_human(forecast_raw_data_tomorrow[:feels_like][:eve].round) }</b>#{ @celsius }
-    Ночью:           <b>#{ temperature_human(forecast_raw_data_tomorrow[:temp][:night].round) }</b>#{ @celsius }, ощущается, как <b>#{ temperature_human(forecast_raw_data_tomorrow[:feels_like][:night].round) }</b>#{ @celsius }
-    Ветер:             #{ wind_direction_tomorrow }<b>#{ forecast_raw_data_tomorrow[:wind_speed].round }м/с</b>#{ wind_gust_tomorrow }
-    В течение дня: #{ forecast_raw_data_tomorrow[:weather][0][:description] },\nвероятность осадков: <b>#{ (forecast_raw_data_tomorrow[:pop]*100).to_i }%</b> #{ precipitations_tomorrow }
+            #{ header }
+            #{ sun }
+            #{ humidity }
+            #{ cloudness }
+            #{ morning }
+            #{ day }
+            #{ evening }
+            #{ night }
+            #{ wind }
+            #{ precipitation }
 FORECAST3
 
-    forecast_tomorrow_next = <<~FORECAST4
-
-    Погодные данные на послезавтра, <b>#{ Time.at(forecast_raw_data_tomorrow_next[:dt]).strftime("%d.%m.%Y") }</b>:
-    Восход:          <b>#{ time_normalize(forecast_raw_data_tomorrow_next[:sunrise]) }</b>.                  Закат: <b>#{ time_normalize(forecast_raw_data_tomorrow_next[:sunset]) }</b>
-    Влажность:   <b>#{ forecast_raw_data_tomorrow_next[:humidity] }%</b>
-    Облачность: <b>#{ forecast_raw_data_tomorrow_next[:clouds] }%</b>
-    Утром:            <b>#{ temperature_human(forecast_raw_data_tomorrow_next[:temp][:morn].round) }</b>#{ @celsius }, ощущается, как <b>#{ temperature_human(forecast_raw_data_tomorrow_next[:feels_like][:morn].round) }</b>#{ @celsius }
-    Днем:             <b>#{ temperature_human(forecast_raw_data_tomorrow_next[:temp][:day].round) }</b>#{ @celsius }, ощущается, как <b>#{ temperature_human(forecast_raw_data_tomorrow_next[:feels_like][:day].round) }</b>#{ @celsius }
-    Вечером:       <b>#{ temperature_human(forecast_raw_data_tomorrow_next[:temp][:eve].round) }</b>#{ @celsius }, ощущается, как <b>#{ temperature_human(forecast_raw_data_tomorrow_next[:feels_like][:eve].round) }</b>#{ @celsius }
-    Ночью:           <b>#{ temperature_human(forecast_raw_data_tomorrow_next[:temp][:night].round) }</b>#{ @celsius }, ощущается, как <b>#{ temperature_human(forecast_raw_data_tomorrow_next[:feels_like][:night].round) }</b>#{ @celsius }
-    Ветер:             #{ wind_direction_tomorrow }<b>#{ forecast_raw_data_tomorrow_next[:wind_speed].round }м/с</b>#{ wind_gust_tomorrow }
-    В течение дня: #{ forecast_raw_data_tomorrow_next[:weather][0][:description] },\nвероятность осадков: <b>#{ (forecast_raw_data_tomorrow_next[:pop]*100).to_i }%</b> #{ precipitations_tomorrow_next }
-FORECAST4
-
-    "#{ forecast_now + forecast_now_2 + forecast_tomorrow + forecast_tomorrow_next }"    
+            { forecast_next: forecast_next }
+          end
+    out
   end
 end

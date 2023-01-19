@@ -17,14 +17,14 @@ class YandexCoordinates
 
       return [full_city_name, city_coordinates]
     else
-      ['City not found']
+      false
     end
   end
 
   private
 
   def city_data(city_name)
-    uri = URI.parse("https://geocode-maps.yandex.ru/1.x/?apikey=#{@yandex_api}&format=json&geocode=#{URI.encode(city_name)}&results=3")
+    uri = URI.parse("https://geocode-maps.yandex.ru/1.x/?apikey=#{@yandex_api}&format=json&geocode=#{url_encode(city_name)}&results=3")
 
     response = Net::HTTP.get_response(uri)
 

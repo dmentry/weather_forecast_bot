@@ -5,18 +5,21 @@ require 'dotenv/load'
 require 'net/http'
 require 'json'
 require 'date'
+require "erb"
+
+include ERB::Util
 
 tg_bot_token = ENV['TELEGRAM_BOT_API_TOKEN']
-yandex_api = ENV['YANDEX_API_KEY']
-cities = { "Балашиха" => [55.7471, 38.0224], "Майкоп" => [44.6107, 40.1058], "Геленджик" => [44.5641, 38.08606] }
+yandex_api   = ENV['YANDEX_API_KEY']
+cities       = { "Балашиха" => [55.7471, 38.0224], "Майкоп" => [44.6107, 40.1058], "Геленджик" => [44.5641, 38.08606] }
 
 Telegram::Bot::Client.run(tg_bot_token) do |bot|
   bot.listen do |message|
     case message.text
     when '/start'
-      bot.api.send_Message(chat_id: message.chat.id, text: "Привет, #{message.from.first_name}! Погоду для какого города вы хотите узнать? Выберите его из списка или введите сами.")
+      bot.api.send_Message(chat_id: message.chat.id, text: "Привет, #{ message.from.first_name }! Погоду для какого города вы хотите узнать? Выберите его из списка или введите название.")
     when '/stop'
-      bot.api.send_message(chat_id: message.chat.id, text: "Пока, #{message.from.first_name}!")
+      bot.api.send_message(chat_id: message.chat.id, text: "Пока, #{ message.from.first_name }!")
     when '/1'
       choise = 1
 
@@ -46,9 +49,7 @@ Telegram::Bot::Client.run(tg_bot_token) do |bot|
 
       city_info = YandexCoordinates.new(yandex_api).city_info(city_name)
 
-      if city_info[0] == 'City not found'
-        bot.api.send_message(chat_id: message.chat.id, text: "Указанный населенный пункт не найден.")
-      else
+      if city_info
         city_coordinates = city_info[1]
 
         city_name = city_info[0]
@@ -56,6 +57,8 @@ Telegram::Bot::Client.run(tg_bot_token) do |bot|
         forecast = ForecastOpenweathermap.new(ENV['OPENWEATHERMAP_KEY'], city_coordinates, city_name)
 
         bot.api.send_message(chat_id: message.chat.id, text: forecast.forecast, parse_mode: 'HTML')
+      else
+        bot.api.send_message(chat_id: message.chat.id, text: "Указанный населенный пункт не найден.")
       end
     end
   end
