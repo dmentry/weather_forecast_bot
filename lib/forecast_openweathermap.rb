@@ -74,7 +74,9 @@ class ForecastOpenweathermap
 
     after_tomorrow_forecast = create_dayly_forecast(forecast_raw_data[2])
 
-    "#{ today_forecast + tomorrow_forecast + after_tomorrow_forecast }"  
+    "#{ today_forecast + tomorrow_forecast + after_tomorrow_forecast }"
+    # out = []
+    # out << today_forecast << tomorrow_forecast << after_tomorrow_forecast
   end
 
   def create_dayly_forecast(forecast)
@@ -94,14 +96,14 @@ class ForecastOpenweathermap
 
     forecast_date = Time.at(forecast[:dt]).to_date
     forecast_day_name_rus = if forecast_date == Date.today
-                              'сегодня'
+                              'сегодня,'
                             elsif forecast_date == Date.today + 1
-                              'завтра'
-                            else
-                              'послезавтра'
+                              'завтра,'
+                            elsif forecast_date == Date.today + 2
+                              'послезавтра,'
                             end
 
-    header        = "Погодные данные на #{ forecast_day_name_rus }, <b>#{ Time.at(forecast[:dt]).strftime("%d.%m.%Y") }</b>:"
+    header        = "Погодные данные на #{ forecast_day_name_rus } <b>#{ Time.at(forecast[:dt]).strftime("%d.%m.%Y") }</b>:"
     sun           = "Восход:          <b>#{ time_normalize(forecast[:sunrise]) }</b>.                    Закат: <b>#{ time_normalize(forecast[:sunset]) }</b>"
     humidity      = "Влажность:   <b>#{ forecast[:humidity] }%</b>"
     cloudness     = "Облачность: <b>#{ forecast[:clouds] }%</b>"
@@ -112,7 +114,7 @@ class ForecastOpenweathermap
     wind          = "Ветер:             #{ wind_direction }<b>#{ forecast[:wind_speed].round } м/с</b>#{ wind_gust }"
     precipitation = "В течение дня: #{ forecast[:weather][0][:description] },\nвероятность осадков: <b>#{ (forecast[:pop]*100).to_i }%</b> #{ precipitations }"
 
-    if forecast_day_name_rus == 'сегодня'
+    if forecast_date == Date.today
       case Time.now.hour
       when 0..8
         forecast_temp = <<~FORECAST.strip
