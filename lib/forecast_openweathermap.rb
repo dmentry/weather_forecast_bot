@@ -1,24 +1,25 @@
 class ForecastOpenweathermap
-  def initialize(token, coordinates, city_name)
-    @token ||= token
-
-    @coordinates = coordinates
-
-    @city_name = city_name
-
-    @celsius = "\xE2\x84\x83"
+  def initialize(token)
+    @openweathermap_token ||= token
   end
 
-  def forecast
-    forecast_raw_data = weather_json[:daily]
+  def call(coordinates, city_name)
+    @city_name = city_name
+    # Убрать все точки в конце, если они есть, сделать первую букву заглавной и стиль шрифта - жирный
+    @city_name = @city_name.gsub(/\.{1,}\z/, '') if @city_name.match?(/\.{1,}\z/)
+    @city_name = @city_name.dup
+    @city_name[0] = @city_name[0].capitalize
+    @city_name = '<b>' + @city_name + '</b>'
+
+    forecast_raw_data = weather_json(coordinates)[:daily]
 
     create_forecast(forecast_raw_data)
   end
 
   private
 
-  def weather_json
-    uri = URI.parse("https://api.openweathermap.org/data/2.5/onecall?lat=#{ @coordinates[0] }&lon=#{ @coordinates[1] }&units=metric&exclude=hourly,current,minutely,alerts&lang=ru&appid=#{ @token }")
+  def weather_json(coordinates)
+    uri = URI.parse("https://api.openweathermap.org/data/2.5/onecall?lat=#{ coordinates[0] }&lon=#{ coordinates[1] }&units=metric&exclude=hourly,current,minutely,alerts&lang=ru&appid=#{ @openweathermap_token }")
 
     response = Net::HTTP.get_response(uri)
 
@@ -67,19 +68,18 @@ class ForecastOpenweathermap
 
   def create_forecast(forecast_raw_data)
     # температура на остаток текущего дня и следующие дни
-    forecast_raw_data_today = forecast_raw_data[0]
-    today_forecast = create_dayly_forecast(forecast: forecast_raw_data_today, today: true)
+    today_forecast = create_dayly_forecast(forecast_raw_data[0])
 
-    forecast_raw_data_tomorrow = forecast_raw_data[1]
-    tomorrow_forecast = create_dayly_forecast(forecast: forecast_raw_data_tomorrow)
+    tomorrow_forecast = create_dayly_forecast(forecast_raw_data[1])
 
-    forecast_raw_data_after_tomorrow = forecast_raw_data[2]
-    after_tomorrow_forecast = create_dayly_forecast(forecast: forecast_raw_data_after_tomorrow)
+    after_tomorrow_forecast = create_dayly_forecast(forecast_raw_data[2])
 
-    "#{ today_forecast[:forecast_now] + tomorrow_forecast[:forecast_next] + after_tomorrow_forecast[:forecast_next] }"  
+    "#{ today_forecast + tomorrow_forecast + after_tomorrow_forecast }"  
   end
 
-  def create_dayly_forecast(forecast:, today: false)
+  def create_dayly_forecast(forecast)
+    celsius = "\xE2\x84\x83"
+
     precipitations = if forecast[:rain]
                        forecast[:rain]
                      else
@@ -91,12 +91,6 @@ class ForecastOpenweathermap
     wind_gust = ', порывы до <b>' + wind_gust.to_s + 'м/с</b>' if wind_gust
 
     wind_direction = wind_direction(forecast[:wind_deg])
-
-    # Убрать все точки в конце, если они есть, сделать первую букву заглавной и стиль шрифта - жирный
-    @city_name = @city_name.gsub(/\.{1,}\z/, '') if @city_name.match?(/\.{1,}\z/)
-    @city_name = @city_name.dup
-    @city_name[0] = @city_name[0].capitalize
-    @city_name = '<b>' + @city_name + '</b>'
 
     forecast_date = Time.at(forecast[:dt]).to_date
     forecast_day_name_rus = if forecast_date == Date.today
@@ -111,17 +105,17 @@ class ForecastOpenweathermap
     sun           = "Восход:          <b>#{ time_normalize(forecast[:sunrise]) }</b>.                    Закат: <b>#{ time_normalize(forecast[:sunset]) }</b>"
     humidity      = "Влажность:   <b>#{ forecast[:humidity] }%</b>"
     cloudness     = "Облачность: <b>#{ forecast[:clouds] }%</b>"
-    morning       = "Утром:            <b>#{ temperature_human(forecast[:temp][:morn].round) }</b>#{ @celsius }, ощущается, как <b>#{ temperature_human(forecast[:feels_like][:morn].round) }</b>#{ @celsius }"
-    day           = "Днем:             <b>#{ temperature_human(forecast[:temp][:day].round) }</b>#{ @celsius }, ощущается, как <b>#{ temperature_human(forecast[:feels_like][:day].round) }</b>#{ @celsius }"
-    evening       = "Вечером:       <b>#{ temperature_human(forecast[:temp][:eve].round) }</b>#{ @celsius }, ощущается, как <b>#{ temperature_human(forecast[:feels_like][:eve].round) }</b>#{ @celsius }"
-    night         = "Ночью:           <b>#{ temperature_human(forecast[:temp][:night].round) }</b>#{ @celsius }, ощущается, как <b>#{ temperature_human(forecast[:feels_like][:night].round) }</b>#{ @celsius }"
+    morning       = "Утром:            <b>#{ temperature_human(forecast[:temp][:morn].round) }</b>#{ celsius }, ощущается, как <b>#{ temperature_human(forecast[:feels_like][:morn].round) }</b>#{ celsius }"
+    day           = "Днем:             <b>#{ temperature_human(forecast[:temp][:day].round) }</b>#{ celsius }, ощущается, как <b>#{ temperature_human(forecast[:feels_like][:day].round) }</b>#{ celsius }"
+    evening       = "Вечером:       <b>#{ temperature_human(forecast[:temp][:eve].round) }</b>#{ celsius }, ощущается, как <b>#{ temperature_human(forecast[:feels_like][:eve].round) }</b>#{ celsius }"
+    night         = "Ночью:           <b>#{ temperature_human(forecast[:temp][:night].round) }</b>#{ celsius }, ощущается, как <b>#{ temperature_human(forecast[:feels_like][:night].round) }</b>#{ celsius }"
     wind          = "Ветер:             #{ wind_direction }<b>#{ forecast[:wind_speed].round } м/с</b>#{ wind_gust }"
     precipitation = "В течение дня: #{ forecast[:weather][0][:description] },\nвероятность осадков: <b>#{ (forecast[:pop]*100).to_i }%</b> #{ precipitations }"
 
     out = if forecast_day_name_rus == 'сегодня'
             case Time.now.hour
             when 0..8
-              forecast_now = <<~FORECAST1
+              forecast = <<~FORECAST1
               #{ @city_name }.
               #{ header }
               #{ sun }
@@ -135,7 +129,7 @@ class ForecastOpenweathermap
               #{ precipitation }
 FORECAST1
             when 9..13
-              forecast_now = <<~FORECAST1
+              forecast = <<~FORECAST1
               #{ @city_name }.
               #{ header }
               #{ sun }
@@ -148,7 +142,7 @@ FORECAST1
               #{ precipitation }
 FORECAST1
             when 14..17
-              forecast_now = <<~FORECAST1
+              forecast = <<~FORECAST1
               #{ @city_name }.
               #{ header }
               #{ sun }
@@ -160,7 +154,7 @@ FORECAST1
               #{ precipitation }
 FORECAST1
             when 18..23
-              forecast_now = <<~FORECAST1
+              forecast = <<~FORECAST1
               #{ @city_name }.
               #{ header }
               #{ sun }
@@ -172,9 +166,9 @@ FORECAST1
 FORECAST1
             end
 
-            { forecast_now: forecast_now }
+            forecast
           else
-            forecast_next = <<~FORECAST3
+            forecast = <<~FORECAST3
 
             #{ header }
             #{ sun }
@@ -188,7 +182,7 @@ FORECAST1
             #{ precipitation }
 FORECAST3
 
-            { forecast_next: forecast_next }
+            forecast
           end
     out
   end

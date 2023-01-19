@@ -24,7 +24,7 @@ class YandexCoordinates
   private
 
   def city_data(city_name)
-    uri = URI.parse("https://geocode-maps.yandex.ru/1.x/?apikey=#{@yandex_api}&format=json&geocode=#{url_encode(city_name)}&results=3")
+    uri = URI.parse("https://geocode-maps.yandex.ru/1.x/?apikey=#{ @yandex_api }&format=json&geocode=#{ url_encode(city_name) }&results=3")
 
     response = Net::HTTP.get_response(uri)
 
