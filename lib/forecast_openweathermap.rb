@@ -3,8 +3,10 @@ class ForecastOpenweathermap
     @openweathermap_token ||= token
 
     # На какое количество дней прогноз
-    @forecast_days_qnt = 7
+    @forecast_days_qnt = 8
     @forecast_days_qnt.freeze
+
+    @icons = {200 => '', 800 => '\xE2\x9B\x85'}
   end
 
   def call(coordinates, city_name)
@@ -73,8 +75,9 @@ class ForecastOpenweathermap
   def create_forecast(forecast_raw_data)
     out = []
 
-    @forecast_days_qnt.times do |day_forecast|
-      out << create_daily_forecast(forecast_raw_data[day_forecast])
+    # Форматируем, по сколько дней показывать в одном сообщении. Сейчас по два
+    forecast_raw_data.each_slice(2) do |day_forecast|
+      out << (create_daily_forecast(day_forecast[0]) + create_daily_forecast(day_forecast[1]))
     end
 
     out
@@ -104,16 +107,21 @@ class ForecastOpenweathermap
                               'послезавтра,'
                             end
 
-    header        = "Погодные данные на #{ forecast_day_name_rus } <b>#{ Time.at(forecast[:dt]).strftime("%d.%m.%Y") }</b>:"
-    sun           = "Восход:          <b>#{ time_normalize(forecast[:sunrise]) }</b>.                    Закат: <b>#{ time_normalize(forecast[:sunset]) }</b>"
-    humidity      = "Влажность:   <b>#{ forecast[:humidity] }%</b>"
-    cloudness     = "Облачность: <b>#{ forecast[:clouds] }%</b>"
-    morning       = "Утром:            <b>#{ temperature_human(forecast[:temp][:morn].round) }</b>#{ celsius }, ощущается, как <b>#{ temperature_human(forecast[:feels_like][:morn].round) }</b>#{ celsius }"
-    day           = "Днем:             <b>#{ temperature_human(forecast[:temp][:day].round) }</b>#{ celsius }, ощущается, как <b>#{ temperature_human(forecast[:feels_like][:day].round) }</b>#{ celsius }"
-    evening       = "Вечером:       <b>#{ temperature_human(forecast[:temp][:eve].round) }</b>#{ celsius }, ощущается, как <b>#{ temperature_human(forecast[:feels_like][:eve].round) }</b>#{ celsius }"
-    night         = "Ночью:           <b>#{ temperature_human(forecast[:temp][:night].round) }</b>#{ celsius }, ощущается, как <b>#{ temperature_human(forecast[:feels_like][:night].round) }</b>#{ celsius }"
-    wind          = "Ветер:             #{ wind_direction }<b>#{ forecast[:wind_speed].round } м/с</b>#{ wind_gust }"
-    precipitation = "В течение дня: #{ forecast[:weather][0][:description] },\nвероятность осадков: <b>#{ (forecast[:pop]*100).to_i }%</b> #{ precipitations }"
+    header         = "Погодные данные на #{ forecast_day_name_rus } <b>#{ Time.at(forecast[:dt]).strftime("%d.%m.%Y") }</b>:"
+    sun            = "Восход:          <b>#{ time_normalize(forecast[:sunrise]) }</b>.                    Закат: <b>#{ time_normalize(forecast[:sunset]) }</b>"
+    humidity       = "Влажность:   <b>#{ forecast[:humidity] }%</b>"
+    cloudness      = "Облачность: <b>#{ forecast[:clouds] }%</b>"
+    morning        = "Утром:            <b>#{ temperature_human(forecast[:temp][:morn].round) }</b>#{ celsius }, ощущается, как <b>#{ temperature_human(forecast[:feels_like][:morn].round) }</b>#{ celsius }"
+    day            = "Днем:             <b>#{ temperature_human(forecast[:temp][:day].round) }</b>#{ celsius }, ощущается, как <b>#{ temperature_human(forecast[:feels_like][:day].round) }</b>#{ celsius }"
+    evening        = "Вечером:       <b>#{ temperature_human(forecast[:temp][:eve].round) }</b>#{ celsius }, ощущается, как <b>#{ temperature_human(forecast[:feels_like][:eve].round) }</b>#{ celsius }"
+    night          = "Ночью:           <b>#{ temperature_human(forecast[:temp][:night].round) }</b>#{ celsius }, ощущается, как <b>#{ temperature_human(forecast[:feels_like][:night].round) }</b>#{ celsius }"
+    wind           = "Ветер:             #{ wind_direction }<b>#{ forecast[:wind_speed].round } м/с</b>#{ wind_gust }"
+    precipitation  = "В течение дня: #{ forecast[:weather][0][:description] }"
+    precipitation2 = if forecast[:pop].to_f != 0.0
+                       "Вероятность осадков: <b>#{ (forecast[:pop]*100).to_i }%</b> #{ precipitations }"
+                     else
+                       "Осадков не ожидается"
+                     end
 
     if forecast_date == Date.today
       case Time.now.hour
@@ -150,6 +158,7 @@ class ForecastOpenweathermap
         #{ forecast_temp }
         #{ wind }
         #{ precipitation }
+        #{ precipitation2 }
       FORECAST
     else
       forecast = <<~FORECAST
@@ -164,6 +173,7 @@ class ForecastOpenweathermap
         #{ night }
         #{ wind }
         #{ precipitation }
+        #{ precipitation2 }
       FORECAST
     end
   end

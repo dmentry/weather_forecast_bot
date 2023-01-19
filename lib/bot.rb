@@ -1,12 +1,9 @@
 class Bot
   def initialize(tg_bot_tkn:, yandex_api_tkn:, openweathermap_tkn:, default_cities:)
-    @tg_bot_tkn = tg_bot_tkn
-
-    @yandex_api_tkn = yandex_api_tkn
-
+    @tg_bot_tkn         = tg_bot_tkn
+    @yandex_api_tkn     = yandex_api_tkn
     @openweathermap_tkn = openweathermap_tkn
-
-    @default_cities = default_cities
+    @default_cities     = default_cities
 
     clear_values
   end
@@ -23,7 +20,7 @@ class Bot
         if message.text == '/start'
           clear_values
 
-          bot.api.send_Message(chat_id: message.chat.id, text: "Привет, #{ message.from.first_name }! Погоду для какого города вы хотите узнать? Выберите его из списка или введите название.")
+          bot.api.send_Message(chat_id: message.chat.id, text: "Привет, #{ message.from.first_name }!\nПогоду для какого города вы хотите узнать?\nВыберите его из списка или введите название.")
         elsif message.text == '/stop'
           clear_values
 
@@ -44,15 +41,20 @@ class Bot
           else
             clear_values
 
-            bot.api.send_message(chat_id: message.chat.id, text: 'На этом - все.')
-            bye_message(bot: bot, message: message)
+            bye_message(bot: bot, message: message, additional_text: 'На этом все. ')
           end
         elsif message.text == 'Нет'
           clear_values
 
           bye_message(bot: bot, message: message)
         else
-          respond_for_user(bot, message, forecast)
+          if !@out.nil?
+            clear_values
+
+            bye_message(bot: bot, message: message, additional_text: 'Неизвестная команда. Попробуйте начать заново, нажав /start. ')
+          else
+            respond_for_user(bot, message, forecast)
+          end
         end
       end
     end
@@ -93,8 +95,7 @@ class Bot
       else
         clear_values
 
-        bot.api.send_message(chat_id: message.chat.id, text: 'На этом - все.')
-        bye_message(bot: bot, message: message)
+        bye_message(bot: bot, message: message, additional_text: 'На этом все. ')
       end
     else
       bot.api.send_message(chat_id: message.chat.id, text: @out, parse_mode: 'HTML')
@@ -107,17 +108,20 @@ class Bot
 
   def send_msg_with_keabord(bot:, message:, question:, keyboard_values:)
     answers = Telegram::Bot::Types::ReplyKeyboardMarkup.new(keyboard: keyboard_values, one_time_keyboard: true, resize_keyboard: true)
+
     bot.api.send_message(chat_id: message.chat.id, text: question, reply_markup: answers)
   end
 
-  def bye_message(bot:, message:)
+  def bye_message(bot:, message:, additional_text: '')
+    bye_text = additional_text + "Пока, #{message.from.first_name}!"
     kb = Telegram::Bot::Types::ReplyKeyboardRemove.new(remove_keyboard: true)
-    bot.api.send_message(chat_id: message.chat.id, text: "Пока, #{message.from.first_name}!", reply_markup: kb)
+
+    bot.api.send_message(chat_id: message.chat.id, text: bye_text, reply_markup: kb)
   end
 
   def clear_values
     @forecast_day_index = 0
-    @quantity_of_days = 0
-    @out = nil
+    @quantity_of_days   = 0
+    @out                = nil
   end
 end
