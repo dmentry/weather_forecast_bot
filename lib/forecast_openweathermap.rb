@@ -1,6 +1,10 @@
 class ForecastOpenweathermap
   def initialize(token)
     @openweathermap_token ||= token
+
+    # На какое количество дней прогноз
+    @forecast_days_qnt = 7
+    @forecast_days_qnt.freeze
   end
 
   def call(coordinates, city_name)
@@ -67,19 +71,16 @@ class ForecastOpenweathermap
   end
 
   def create_forecast(forecast_raw_data)
-    # прогноз на остаток текущего дня и следующие дни
-    today_forecast = create_dayly_forecast(forecast_raw_data[0])
+    out = []
 
-    tomorrow_forecast = create_dayly_forecast(forecast_raw_data[1])
+    @forecast_days_qnt.times do |day_forecast|
+      out << create_daily_forecast(forecast_raw_data[day_forecast])
+    end
 
-    after_tomorrow_forecast = create_dayly_forecast(forecast_raw_data[2])
-
-    "#{ today_forecast + tomorrow_forecast + after_tomorrow_forecast }"
-    # out = []
-    # out << today_forecast << tomorrow_forecast << after_tomorrow_forecast
+    out
   end
 
-  def create_dayly_forecast(forecast)
+  def create_daily_forecast(forecast)
     celsius = "\xE2\x84\x83"
 
     precipitations = if forecast[:rain]
