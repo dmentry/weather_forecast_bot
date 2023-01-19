@@ -29,5 +29,7 @@ main.rb
 ```
 
 ## ToDo
+* Code refactoring
+* Implement to suggest forecast up to five days
 * Implement weather conditions' icons
 * Implement keys into menu

@@ -6,10 +6,10 @@ class ForecastOpenweathermap
   def call(coordinates, city_name)
     @city_name = city_name
     # Убрать все точки в конце, если они есть, сделать первую букву заглавной и стиль шрифта - жирный
-    @city_name = @city_name.gsub(/\.{1,}\z/, '') if @city_name.match?(/\.{1,}\z/)
-    @city_name = @city_name.dup
+    @city_name    = @city_name.gsub(/\.{1,}\z/, '') if @city_name.match?(/\.{1,}\z/)
+    @city_name    = @city_name.dup
     @city_name[0] = @city_name[0].capitalize
-    @city_name = '<b>' + @city_name + '</b>'
+    @city_name    = '<b>' + @city_name + '</b>'
 
     forecast_raw_data = weather_json(coordinates)[:daily]
 
@@ -67,7 +67,7 @@ class ForecastOpenweathermap
   end
 
   def create_forecast(forecast_raw_data)
-    # температура на остаток текущего дня и следующие дни
+    # прогноз на остаток текущего дня и следующие дни
     today_forecast = create_dayly_forecast(forecast_raw_data[0])
 
     tomorrow_forecast = create_dayly_forecast(forecast_raw_data[1])
@@ -112,78 +112,56 @@ class ForecastOpenweathermap
     wind          = "Ветер:             #{ wind_direction }<b>#{ forecast[:wind_speed].round } м/с</b>#{ wind_gust }"
     precipitation = "В течение дня: #{ forecast[:weather][0][:description] },\nвероятность осадков: <b>#{ (forecast[:pop]*100).to_i }%</b> #{ precipitations }"
 
-    out = if forecast_day_name_rus == 'сегодня'
-            case Time.now.hour
-            when 0..8
-              forecast = <<~FORECAST1
-              #{ @city_name }.
-              #{ header }
-              #{ sun }
-              #{ humidity }
-              #{ cloudness }
-              #{ morning }
-              #{ day }
-              #{ evening }
-              #{ night }
-              #{ wind }
-              #{ precipitation }
-FORECAST1
-            when 9..13
-              forecast = <<~FORECAST1
-              #{ @city_name }.
-              #{ header }
-              #{ sun }
-              #{ humidity }
-              #{ cloudness }
-              #{ day }
-              #{ evening }
-              #{ night }
-              #{ wind }
-              #{ precipitation }
-FORECAST1
-            when 14..17
-              forecast = <<~FORECAST1
-              #{ @city_name }.
-              #{ header }
-              #{ sun }
-              #{ humidity }
-              #{ cloudness }
-              #{ evening }
-              #{ night }
-              #{ wind }
-              #{ precipitation }
-FORECAST1
-            when 18..23
-              forecast = <<~FORECAST1
-              #{ @city_name }.
-              #{ header }
-              #{ sun }
-              #{ humidity }
-              #{ cloudness }
-              #{ night }
-              #{ wind }
-              #{ precipitation }
-FORECAST1
-            end
+    if forecast_day_name_rus == 'сегодня'
+      case Time.now.hour
+      when 0..8
+        forecast_temp = <<~FORECAST.strip
+          #{ morning }
+          #{ day }
+          #{ evening }
+          #{ night }
+        FORECAST
+      when 9..13
+        forecast_temp = <<~FORECAST.strip
+          #{ day }
+          #{ evening }
+          #{ night }
+        FORECAST
+      when 14..17
+        forecast_temp = <<~FORECAST.strip
+          #{ evening }
+          #{ night }
+        FORECAST
+      when 18..23
+        forecast_temp = <<~FORECAST.strip
+          #{ night }
+        FORECAST
+      end
 
-            forecast
-          else
-            forecast = <<~FORECAST3
+      forecast = <<~FORECAST
+        #{ @city_name }.
+        #{ header }
+        #{ sun }
+        #{ humidity }
+        #{ cloudness }
+        #{ forecast_temp }
+        #{ wind }
+        #{ precipitation }
+      FORECAST
+    else
+      forecast = <<~FORECAST
 
-            #{ header }
-            #{ sun }
-            #{ humidity }
-            #{ cloudness }
-            #{ morning }
-            #{ day }
-            #{ evening }
-            #{ night }
-            #{ wind }
-            #{ precipitation }
-FORECAST3
-
-            forecast
-          end
-    out
+        #{ header }
+        #{ sun }
+        #{ humidity }
+        #{ cloudness }
+        #{ morning }
+        #{ day }
+        #{ evening }
+        #{ night }
+        #{ wind }
+        #{ precipitation }
+      FORECAST
+    end
   end
 end

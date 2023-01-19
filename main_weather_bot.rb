@@ -9,10 +9,10 @@ require "erb"
 
 include ERB::Util
 
-tg_bot_token   = ENV['TELEGRAM_BOT_API_TOKEN']
-yandex_api_token = ENV['YANDEX_API_KEY']
+tg_bot_token         = ENV['TELEGRAM_BOT_API_TOKEN']
+yandex_api_token     = ENV['YANDEX_API_KEY']
 openweathermap_token = ENV['OPENWEATHERMAP_KEY']
-@cities         = { "Балашиха" => [55.7471, 38.0224], "Майкоп" => [44.6107, 40.1058], "Геленджик" => [44.5641, 38.08606] }
+@cities              = { "Балашиха" => [55.7471, 38.0224], "Майкоп" => [44.6107, 40.1058], "Геленджик" => [44.5641, 38.08606] }
 
 def respond_for_default_city(choise, bot, message)
   city_coordinates = @cities.values[choise - 1]
