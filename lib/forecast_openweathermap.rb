@@ -40,29 +40,21 @@ class ForecastOpenweathermap
 
   def wind_direction(degrees)
     if (338..360).include?(degrees) || (0..23).include?(degrees)
-      # " северный, "
-      "\xE2\xAC\x86" + ', '
+      "\xE2\xAC\x86" + 'С'
     elsif (24..68).include?(degrees)
-      # " северо-восточный, "
-      "\xE2\x86\x97" + ', '
+      "\xE2\x86\x97" + 'СВ'
     elsif (69..113).include?(degrees)
-      # " восточный, "
-      "\xE2\x9E\xA1" + ', '
+      "\xE2\x9E\xA1" + 'В'
     elsif (114..158).include?(degrees)
-      # " юго-восточный, "
-      "\xE2\x86\x98" + ', '
+      "\xE2\x86\x98" + 'ЮВ'
     elsif (159..203).include?(degrees)
-      # " южный, "
-      "\xE2\xAC\x87" + ', '
+      "\xE2\xAC\x87" + 'Ю'
     elsif (204..248).include?(degrees)
-      # " юго-западный, "
-      "\xE2\x86\x99"
+      "\xE2\x86\x99" + 'ЮЗ'
     elsif (249..293).include?(degrees)
-      # " западный, "
-      "\xE2\xAC\x85" + ', '
+      "\xE2\xAC\x85" + 'З'
     elsif (294..337).include?(degrees)
-      # " северо-западный, "
-      "\xE2\x86\x96" + ', '
+      "\xE2\x86\x96" + 'СЗ'
     end
   end
 
@@ -85,7 +77,7 @@ class ForecastOpenweathermap
                      else
                        forecast[:snow]
                      end
-    precipitations = ' (выпадет <b>' + precipitations.to_s  + 'мм</b>).' if precipitations
+    precipitations = ' (<b>' + precipitations.to_s  + 'мм</b>)' if precipitations
 
     wind_gust = forecast[:wind_gust].round if forecast[:wind_gust]
     wind_gust = ', порывы до <b>' + wind_gust.to_s + 'м/с</b>' if wind_gust
@@ -94,18 +86,18 @@ class ForecastOpenweathermap
 
     forecast_date = Time.at(forecast[:dt]).to_date
     forecast_day_name_rus = if forecast_date == Date.today
-                              'сегодня,'
+                              'Сегодня'
                             elsif forecast_date == Date.today + 1
-                              'завтра,'
+                              'Завтра'
                             elsif forecast_date == Date.today + 2
-                              'послезавтра,'
+                              'Послезавтра'
                             end
+    week_day_name_rus = week_days_rus(Time.at(forecast[:dt]).wday)
+    week_day_name_rus = ' ' + week_day_name_rus.downcase if forecast_day_name_rus
 
-    header         = "Погодные данные на #{ forecast_day_name_rus } <b>#{ Time.at(forecast[:dt]).strftime("%d.%m.%Y") }</b>:"
-    # moon           = "Фаза луны: #{ moon_phase(forecast[:moon_phase]) }"
-    moon           = "#{ moon_phase(forecast[:moon_phase]) }                     <b>#{ time_normalize(forecast[:moonrise]) }</b> - <b>#{ time_normalize(forecast[:moonset]) }</b>"
-    # sun            = "Восход:          <b>#{ time_normalize(forecast[:sunrise]) }</b>.                    Закат: <b>#{ time_normalize(forecast[:sunset]) }</b>"
-    sun            = "&#127774;                     <b>#{ time_normalize(forecast[:sunrise]) } - #{ time_normalize(forecast[:sunset]) }</b>"
+    header         = "#{ forecast_day_name_rus }#{ week_day_name_rus }, #{ Time.at(forecast[:dt]).strftime("%d.%m.%Y") }:"
+    moon           = "#{ moon_phase(forecast[:moon_phase]) }                    <b>#{ time_normalize(forecast[:moonrise]) }</b> - <b>#{ time_normalize(forecast[:moonset]) }</b>"
+    sun            = "&#127774;                    <b>#{ time_normalize(forecast[:sunrise]) }</b> - <b>#{ time_normalize(forecast[:sunset]) }</b>"
     humidity       = "Влажность:   <b>#{ forecast[:humidity] }%</b>"
     pressure       = "Давление:     <b>#{ (forecast[:pressure] * 0.75).round } мм рт. ст.</b>"
     cloudness      = "Облачность: <b>#{ forecast[:clouds] }%</b>"
@@ -113,9 +105,8 @@ class ForecastOpenweathermap
     day            = "Днем:             <b>#{ temperature_human(forecast[:temp][:day].round) }</b>#{ celsius }, ощущается, как <b>#{ temperature_human(forecast[:feels_like][:day].round) }</b>#{ celsius }"
     evening        = "Вечером:       <b>#{ temperature_human(forecast[:temp][:eve].round) }</b>#{ celsius }, ощущается, как <b>#{ temperature_human(forecast[:feels_like][:eve].round) }</b>#{ celsius }"
     night          = "Ночью:           <b>#{ temperature_human(forecast[:temp][:night].round) }</b>#{ celsius }, ощущается, как <b>#{ temperature_human(forecast[:feels_like][:night].round) }</b>#{ celsius }"
-    wind           = "Ветер:             #{ wind_direction }<b>#{ forecast[:wind_speed].round } м/с</b>#{ wind_gust }"
-    # precipitation  = "В течение дня: #{ emoji(forecast[:weather][0][:id]) } #{ forecast[:weather][0][:description] }"
-    precipitation  = "Днем:             #{ emoji(forecast[:weather][0][:id]) }"
+    wind           = "Ветер:            <b>#{ forecast[:wind_speed].round }м/с #{ wind_direction }</b>#{ wind_gust }"
+    precipitation  = "Погода:          #{ emoji(forecast[:weather][0][:id]) }"
     precipitation2 = if forecast[:pop].to_f != 0.0
                        "Вероятность осадков: <b>#{ (forecast[:pop]*100).to_i }%</b> #{ precipitations }"
                      else
@@ -214,24 +205,27 @@ class ForecastOpenweathermap
 
   def moon_phase(moon_code)
     case moon_code
-    when (0..0.12)
+    when (0..0.12), (0.95..0.99)
       "&#127761;"    # новолуние
     when (0.13..0.20)
-      "&#127762;"    # молодая
+      "&#127762;"    # молодая луна
     when (0.21..0.34)
       "&#127763;"    # первая четверть
     when (0.35..0.47)
-      "&#127764;"    # прибывающая
+      "&#127764;"    # прибывающая луна
     when (0.48..0.5)
       "&#127765;"    # полнолуние
     when (0.51..0.63)
-      "&#127766;"    # убывающая
+      "&#127766;"    # убывающая луна
     when (0.64..0.77)
       "&#127767;"    # последняя четверть
     when (0.78..0.94)
-      "&#127768;"    # старая
-    when (0.95..0.99)
-      "&#127761;"    # новолуние
+      "&#127768;"    # старая луна
     end
+  end
+
+  def week_days_rus(week_day_nr)
+    week_days_rus = { 1 => 'Понедельник', 2 => 'Вторник', 3 => 'Среда', 4 => 'Четверг', 5 => 'Пятница', 6 => 'Суббота', 0 => 'Воскресенье' }
+    week_days_rus[week_day_nr]
   end
 end
