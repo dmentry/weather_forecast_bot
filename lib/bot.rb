@@ -20,17 +20,21 @@ class Bot
         if message.text == '/start'
           clear_values
 
-          bot.api.send_Message(chat_id: message.chat.id, text: "Привет, #{ message.from.first_name }!\nПогоду для какого города вы хотите узнать?\nВыберите его из списка или введите название.")
+          bot.api.send_Message(
+                               chat_id: message.chat.id, 
+                               text: "Привет, #{ message.from.first_name }!\nПогоду для какого города вы хотите узнать?"\
+                                     "\n&#8505; Выберите его из списка или введите название. Можно на русском, на английском, кириллицей, латиницей или латиницей по-русски."\
+                                     "\nПрогноз на восемь дней.",
+                               parse_mode: 'HTML'
+                              )
         elsif message.text == '/stop'
           clear_values
 
           bye_message(bot: bot, message: message)
-        elsif message.text == '/1'
-          respond_for_user(bot, message, forecast, 1)
-        elsif message.text == '/2'
-          respond_for_user(bot, message, forecast, 2)
-        elsif message.text == '/3'
-          respond_for_user(bot, message, forecast, 3)
+        elsif message.text.match?(/\A\/\d\z/)
+          city_variant = message.text.gsub(/\A\//, '').to_i
+
+          respond_for_user(bot, message, forecast, city_variant)
         elsif message.text == 'Да'
           bot.api.send_message(chat_id: message.chat.id, text: @out[@forecast_day_index], parse_mode: 'HTML')
 

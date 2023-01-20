@@ -1,12 +1,6 @@
 class ForecastOpenweathermap
   def initialize(token)
     @openweathermap_token ||= token
-
-    # На какое количество дней прогноз
-    @forecast_days_qnt = 8
-    @forecast_days_qnt.freeze
-
-    @icons = {200 => '', 800 => '\xE2\x9B\x85'}
   end
 
   def call(coordinates, city_name)
@@ -108,15 +102,20 @@ class ForecastOpenweathermap
                             end
 
     header         = "Погодные данные на #{ forecast_day_name_rus } <b>#{ Time.at(forecast[:dt]).strftime("%d.%m.%Y") }</b>:"
-    sun            = "Восход:          <b>#{ time_normalize(forecast[:sunrise]) }</b>.                    Закат: <b>#{ time_normalize(forecast[:sunset]) }</b>"
+    # moon           = "Фаза луны: #{ moon_phase(forecast[:moon_phase]) }"
+    moon           = "#{ moon_phase(forecast[:moon_phase]) }                     <b>#{ time_normalize(forecast[:moonrise]) }</b> - <b>#{ time_normalize(forecast[:moonset]) }</b>"
+    # sun            = "Восход:          <b>#{ time_normalize(forecast[:sunrise]) }</b>.                    Закат: <b>#{ time_normalize(forecast[:sunset]) }</b>"
+    sun            = "&#127774;                     <b>#{ time_normalize(forecast[:sunrise]) } - #{ time_normalize(forecast[:sunset]) }</b>"
     humidity       = "Влажность:   <b>#{ forecast[:humidity] }%</b>"
+    pressure       = "Давление:     <b>#{ (forecast[:pressure] * 0.75).round } мм рт. ст.</b>"
     cloudness      = "Облачность: <b>#{ forecast[:clouds] }%</b>"
     morning        = "Утром:            <b>#{ temperature_human(forecast[:temp][:morn].round) }</b>#{ celsius }, ощущается, как <b>#{ temperature_human(forecast[:feels_like][:morn].round) }</b>#{ celsius }"
     day            = "Днем:             <b>#{ temperature_human(forecast[:temp][:day].round) }</b>#{ celsius }, ощущается, как <b>#{ temperature_human(forecast[:feels_like][:day].round) }</b>#{ celsius }"
     evening        = "Вечером:       <b>#{ temperature_human(forecast[:temp][:eve].round) }</b>#{ celsius }, ощущается, как <b>#{ temperature_human(forecast[:feels_like][:eve].round) }</b>#{ celsius }"
     night          = "Ночью:           <b>#{ temperature_human(forecast[:temp][:night].round) }</b>#{ celsius }, ощущается, как <b>#{ temperature_human(forecast[:feels_like][:night].round) }</b>#{ celsius }"
     wind           = "Ветер:             #{ wind_direction }<b>#{ forecast[:wind_speed].round } м/с</b>#{ wind_gust }"
-    precipitation  = "В течение дня: #{ forecast[:weather][0][:description] }"
+    # precipitation  = "В течение дня: #{ emoji(forecast[:weather][0][:id]) } #{ forecast[:weather][0][:description] }"
+    precipitation  = "Днем:             #{ emoji(forecast[:weather][0][:id]) }"
     precipitation2 = if forecast[:pop].to_f != 0.0
                        "Вероятность осадков: <b>#{ (forecast[:pop]*100).to_i }%</b> #{ precipitations }"
                      else
@@ -152,29 +151,87 @@ class ForecastOpenweathermap
       forecast = <<~FORECAST
         #{ @city_name }.
         #{ header }
+        #{ moon }
         #{ sun }
-        #{ humidity }
-        #{ cloudness }
         #{ forecast_temp }
+        #{ pressure }
+        #{ humidity }
         #{ wind }
         #{ precipitation }
+        #{ cloudness }
         #{ precipitation2 }
       FORECAST
     else
       forecast = <<~FORECAST
 
         #{ header }
+        #{ moon }
         #{ sun }
-        #{ humidity }
-        #{ cloudness }
         #{ morning }
         #{ day }
         #{ evening }
         #{ night }
+        #{ pressure }
+        #{ humidity }
         #{ wind }
         #{ precipitation }
+        #{ cloudness }
         #{ precipitation2 }
       FORECAST
+    end
+  end
+
+  def emoji(weather_code)
+    case weather_code
+    when (200..209), (230..209)
+      "&#x26C8;"    # thunderstorm with rain
+    when (210..221)
+      "&#x1F329;"   # thunderstorm
+    when (300..310)
+      "&#x1F326;"   # light rain (drizzle)
+    when (311..399)
+      "&#x2614;"    # rain (drizzle)
+    when (500..501)
+      "&#127783;"   # rain
+    when (502..599)
+      "&#127783;"   # heavy rain
+    when (600..699)
+      "&#127784;"   # snow
+    when 701, 741
+      "&#x1F301;"   # fog
+    when 800
+      "\u{1F31E}"   # clear sky
+    when 801
+      "\u{1F324}"   # few clouds
+    when 802
+      "\u{26C5}"    # scattered clouds
+    when 803
+      "\u{1F325}"   # broken clouds
+    when 804
+      "\u{2601}"    # overcast clouds
+    end
+  end
+
+  def moon_phase(moon_code)
+    case moon_code
+    when (0..0.12)
+      "&#127761;"    # новолуние
+    when (0.13..0.20)
+      "&#127762;"    # молодая
+    when (0.21..0.34)
+      "&#127763;"    # первая четверть
+    when (0.35..0.47)
+      "&#127764;"    # прибывающая
+    when (0.48..0.5)
+      "&#127765;"    # полнолуние
+    when (0.51..0.63)
+      "&#127766;"    # убывающая
+    when (0.64..0.77)
+      "&#127767;"    # последняя четверть
+    when (0.78..0.94)
+      "&#127768;"    # старая
+    when (0.95..0.99)
+      "&#127761;"    # новолуние
     end
   end
 end
