@@ -40,21 +40,21 @@ class ForecastOpenweathermap
 
   def wind_direction(degrees)
     if (338..360).include?(degrees) || (0..23).include?(degrees)
-      "\xE2\xAC\x86" + 'С'
+      "\xE2\xAC\x86" + ' С'
     elsif (24..68).include?(degrees)
-      "\xE2\x86\x97" + 'СВ'
+      "\xE2\x86\x97" + ' СВ'
     elsif (69..113).include?(degrees)
-      "\xE2\x9E\xA1" + 'В'
+      "\xE2\x9E\xA1" + ' В'
     elsif (114..158).include?(degrees)
-      "\xE2\x86\x98" + 'ЮВ'
+      "\xE2\x86\x98" + ' ЮВ'
     elsif (159..203).include?(degrees)
-      "\xE2\xAC\x87" + 'Ю'
+      "\xE2\xAC\x87" + ' Ю'
     elsif (204..248).include?(degrees)
-      "\xE2\x86\x99" + 'ЮЗ'
+      "\xE2\x86\x99" + ' ЮЗ'
     elsif (249..293).include?(degrees)
-      "\xE2\xAC\x85" + 'З'
+      "\xE2\xAC\x85" + ' З'
     elsif (294..337).include?(degrees)
-      "\xE2\x86\x96" + 'СЗ'
+      "\xE2\x86\x96" + ' СЗ'
     end
   end
 
