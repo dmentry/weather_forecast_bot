@@ -35,19 +35,19 @@ class Bot
           city_variant = message.text.gsub(/\A\//, '').to_i
 
           respond_for_user(bot, message, forecast, city_variant)
-        elsif message.text == 'Да'
+        elsif message.text.match?(/\sДа\z/)
           bot.api.send_message(chat_id: message.chat.id, text: @out[@forecast_day_index], parse_mode: 'HTML')
 
           @forecast_day_index += 1
 
           if @forecast_day_index <= @quantity_of_days 
-            send_msg_with_keabord(bot: bot, message: message, question: 'Дальше?', keyboard_values: [['Да', 'Нет']])
+            send_msg_with_keabord(bot: bot, message: message, question: 'Дальше?', keyboard_values: [['✔️ Да', '❌ Нет']])
           else
             clear_values
 
             bye_message(bot: bot, message: message, additional_text: 'На этом все. ')
           end
-        elsif message.text == 'Нет'
+        elsif message.text.match?(/\sНет\z/)
           clear_values
 
           bye_message(bot: bot, message: message)
@@ -95,7 +95,7 @@ class Bot
       @forecast_day_index += 1
 
       if @forecast_day_index <= @quantity_of_days 
-        send_msg_with_keabord(bot: bot, message: message, question: 'Дальше?', keyboard_values: [['Да', 'Нет']])
+        send_msg_with_keabord(bot: bot, message: message, question: 'Дальше?', keyboard_values: [['✔️ Да', '❌ Нет']])
       else
         clear_values
 

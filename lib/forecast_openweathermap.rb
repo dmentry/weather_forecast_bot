@@ -40,21 +40,21 @@ class ForecastOpenweathermap
 
   def wind_direction(degrees)
     if (338..360).include?(degrees) || (0..23).include?(degrees)
-      "\xE2\xAC\x86" + ' С'
+      "&#11015;" + ' С'
     elsif (24..68).include?(degrees)
-      "\xE2\x86\x97" + ' СВ'
+      "&#8601;" + ' СВ'
     elsif (69..113).include?(degrees)
-      "\xE2\x9E\xA1" + ' В'
+      "&#11013;" + ' В'
     elsif (114..158).include?(degrees)
-      "\xE2\x86\x98" + ' ЮВ'
+      "&#8598;" + ' ЮВ'
     elsif (159..203).include?(degrees)
-      "\xE2\xAC\x87" + ' Ю'
+      "&#11014;" + ' Ю'
     elsif (204..248).include?(degrees)
-      "\xE2\x86\x99" + ' ЮЗ'
+      "&#8599;" + ' ЮЗ'
     elsif (249..293).include?(degrees)
-      "\xE2\xAC\x85" + ' З'
+      "&#10145;" + ' З'
     elsif (294..337).include?(degrees)
-      "\xE2\x86\x96" + ' СЗ'
+      "&#8600;" + ' СЗ'
     end
   end
 
@@ -108,7 +108,7 @@ class ForecastOpenweathermap
     wind           = "Ветер:            <b>#{ forecast[:wind_speed].round }м/с #{ wind_direction }</b>#{ wind_gust }"
     precipitation  = "Погода:          #{ emoji(forecast[:weather][0][:id]) }"
     precipitation2 = if forecast[:pop].to_f != 0.0
-                       "Вероятность осадков: <b>#{ (forecast[:pop]*100).to_i }%</b> #{ precipitations }"
+                       "Осадки:          <b>#{ (forecast[:pop]*100).to_i }%</b> #{ precipitations }"
                      else
                        "Осадков не ожидается"
                      end
