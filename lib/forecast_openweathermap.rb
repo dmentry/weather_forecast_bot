@@ -108,7 +108,7 @@ class ForecastOpenweathermap
     wind           = "Ветер:            <b>#{ forecast[:wind_speed].round }м/с #{ wind_direction }</b>#{ wind_gust }"
     precipitation  = "Погода:          #{ emoji(forecast[:weather][0][:id]) }"
     precipitation2 = if forecast[:pop].to_f != 0.0
-                       "Осадки:          <b>#{ (forecast[:pop]*100).to_i }%</b> #{ precipitations }"
+                       "Осадки:         <b>#{ (forecast[:pop]*100).to_i }%</b> #{ precipitations }"
                      else
                        "Осадков не ожидается"
                      end
