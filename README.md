@@ -29,4 +29,4 @@ main.rb
 ```
 
 ## ToDo
-* Implement buttons for predefined cities into menu
+* Improve bot stability
