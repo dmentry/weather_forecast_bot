@@ -142,8 +142,8 @@ class ForecastOpenweathermap
       forecast = <<~FORECAST
         #{ @city_name }.
         #{ header }
-        #{ moon }
         #{ sun }
+        #{ moon }
         #{ forecast_temp }
         #{ pressure }
         #{ humidity }
@@ -156,8 +156,8 @@ class ForecastOpenweathermap
       forecast = <<~FORECAST
 
         #{ header }
-        #{ moon }
         #{ sun }
+        #{ moon }
         #{ morning }
         #{ day }
         #{ evening }
