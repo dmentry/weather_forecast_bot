@@ -60,7 +60,9 @@ class ForecastOpenweathermap
 
   def create_forecast(forecast_raw_data)
     out = []
-
+puts '***********************************************************************************************'
+puts forecast_raw_data
+puts '***********************************************************************************************'
     # Форматируем, по сколько дней показывать в одном сообщении. Сейчас по два
     forecast_raw_data.each_slice(2) do |day_forecast|
       out << (create_daily_forecast(day_forecast[0]) + create_daily_forecast(day_forecast[1]))
@@ -205,13 +207,13 @@ class ForecastOpenweathermap
 
   def moon_phase(moon_code)
     case moon_code
-    when (0..0.12), (0.95..0.99)
+    when (0..0.10), (0.95..0.99)
       "&#127761;"    # новолуние
-    when (0.13..0.20)
+    when (0.11..0.21)
       "&#127762;"    # молодая луна
-    when (0.21..0.34)
+    when (0.22..0.33)
       "&#127763;"    # первая четверть
-    when (0.35..0.48)
+    when (0.34..0.48)
       "&#127764;"    # прибывающая луна
     when (0.49..0.55)
       "&#127765;"    # полнолуние
