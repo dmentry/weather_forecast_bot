@@ -60,9 +60,7 @@ class ForecastOpenweathermap
 
   def create_forecast(forecast_raw_data)
     out = []
-puts '***********************************************************************************************'
-puts forecast_raw_data
-puts '***********************************************************************************************'
+
     # Форматируем, по сколько дней показывать в одном сообщении. Сейчас по два
     forecast_raw_data.each_slice(2) do |day_forecast|
       out << (create_daily_forecast(day_forecast[0]) + create_daily_forecast(day_forecast[1]))
