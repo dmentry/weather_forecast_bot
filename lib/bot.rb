@@ -58,7 +58,11 @@ class Bot
 
               bye_message(bot: bot, message: message, additional_text: 'Неизвестная команда. Попробуйте начать заново, нажав /start. ')
             else
-              respond_for_user(bot, message, forecast)
+              if message.text.match?(/\A[А-Яёа-яё\-A-Za-z\s1-9]{2,}\z/)
+                respond_for_user(bot, message, forecast)
+              else
+                bye_message(bot: bot, message: message, additional_text: 'Неизвестная команда. Попробуйте начать заново, нажав /start. ')
+              end
             end
           end
         end
