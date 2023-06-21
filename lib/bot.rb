@@ -37,7 +37,7 @@ class Bot
               city_variant = message.text.gsub(/\A\//, '').to_i
 
               respond_for_user(bot, message, forecast, city_variant)
-            elsif message.text.match?(/\sДа\z/)
+            elsif message.text.match?(/\sДа\z/) && !@out.nil?
               bot.api.send_message(chat_id: message.chat.id, text: @out[@forecast_day_index], parse_mode: 'HTML')
 
               @forecast_day_index += 1
@@ -59,7 +59,7 @@ class Bot
 
                 bye_message(bot: bot, message: message, additional_text: 'Неизвестная команда. Попробуйте начать заново, нажав /start. ')
               else
-                if message.text.match?(/\A[А-Яёа-яё\-A-Za-z\s1-9]{2,}\z/)
+                if !message&.text.nil? && message&.text.match?(/\A[А-Яёа-яё\-A-Za-z\s1-9]{2,}\z/)
                   respond_for_user(bot, message, forecast)
                 else
                   clear_values
