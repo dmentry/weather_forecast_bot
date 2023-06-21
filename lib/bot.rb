@@ -18,7 +18,7 @@ class Bot
         bot.listen do |message|
           next if start_bot_time - message.date > 650
 
-          if message.text
+          if !message&.text.nil?
             if message.text == '/start'
               clear_values
 
