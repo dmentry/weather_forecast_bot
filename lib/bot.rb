@@ -38,7 +38,7 @@ class Bot
               city_variant = message.text.gsub(/\A\//, '').to_i
 
               respond_for_user(bot, message, forecast, city_variant)
-            elsif message.text.match?(/\sДа\z/)
+            elsif message.text.match?(/\sДа\z/) && @out.size > 0
               bot.api.send_message(chat_id: message.chat.id, text: @out[@forecast_day_index], parse_mode: 'HTML')
 
               @forecast_day_index += 1
