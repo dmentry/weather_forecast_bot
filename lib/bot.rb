@@ -18,52 +18,60 @@ class Bot
         bot.listen do |message|
           next if start_bot_time - message.date > 650
 
-          if message.text == '/start'
-            clear_values
-
-            bot.api.send_Message(
-                                 chat_id: message.chat.id, 
-                                 text: "Привет, #{ message.from.first_name }!\nПогоду для какого населенного пункта хотите узнать?"\
-                                       "\n&#8505; Выберите его из списка или введите название. Можно на русском, английском, кириллицей или латиницей."\
-                                       "\nПрогноз на восемь дней.",
-                                 parse_mode: 'HTML'
-                                )
-          elsif message.text == '/stop'
-            clear_values
-
-            bye_message(bot: bot, message: message)
-          elsif message.text.match?(/\A\/\d\z/)
-            city_variant = message.text.gsub(/\A\//, '').to_i
-
-            respond_for_user(bot, message, forecast, city_variant)
-          elsif message.text.match?(/\sДа\z/)
-            bot.api.send_message(chat_id: message.chat.id, text: @out[@forecast_day_index], parse_mode: 'HTML')
-
-            @forecast_day_index += 1
-
-            if @forecast_day_index <= @quantity_of_days 
-              send_msg_with_keabord(bot: bot, message: message, question: 'Дальше?', keyboard_values: [['✔️ Да', '❌ Нет']])
-            else
+          if message.text
+            if message.text == '/start'
               clear_values
 
-              bye_message(bot: bot, message: message, additional_text: 'На этом все. ')
-            end
-          elsif message.text.match?(/\sНет\z/)
-            clear_values
-
-            bye_message(bot: bot, message: message)
-          else
-            if !@out.nil?
+              bot.api.send_Message(
+                                   chat_id: message.chat.id, 
+                                   text: "Привет, #{ message.from.first_name }!\nПогоду для какого населенного пункта хотите узнать?"\
+                                         "\n&#8505; Выберите его из списка или введите название. Можно на русском, английском, кириллицей или латиницей."\
+                                         "\nПрогноз на восемь дней.",
+                                   parse_mode: 'HTML'
+                                  )
+            elsif message.text == '/stop'
               clear_values
 
-              bye_message(bot: bot, message: message, additional_text: 'Неизвестная команда. Попробуйте начать заново, нажав /start. ')
-            else
-              if message.text.match?(/\A[А-Яёа-яё\-A-Za-z\s1-9]{2,}\z/)
-                respond_for_user(bot, message, forecast)
+              bye_message(bot: bot, message: message)
+            elsif message.text.match?(/\A\/\d\z/)
+              city_variant = message.text.gsub(/\A\//, '').to_i
+
+              respond_for_user(bot, message, forecast, city_variant)
+            elsif message.text.match?(/\sДа\z/)
+              bot.api.send_message(chat_id: message.chat.id, text: @out[@forecast_day_index], parse_mode: 'HTML')
+
+              @forecast_day_index += 1
+
+              if @forecast_day_index <= @quantity_of_days 
+                send_msg_with_keabord(bot: bot, message: message, question: 'Дальше?', keyboard_values: [['✔️ Да', '❌ Нет']])
               else
+                clear_values
+
+                bye_message(bot: bot, message: message, additional_text: 'На этом все. ')
+              end
+            elsif message.text.match?(/\sНет\z/)
+              clear_values
+
+              bye_message(bot: bot, message: message)
+            else
+              if !@out.nil?
+                clear_values
+
                 bye_message(bot: bot, message: message, additional_text: 'Неизвестная команда. Попробуйте начать заново, нажав /start. ')
+              else
+                if message.text.match?(/\A[А-Яёа-яё\-A-Za-z\s1-9]{2,}\z/)
+                  respond_for_user(bot, message, forecast)
+                else
+                  clear_values
+
+                  bye_message(bot: bot, message: message, additional_text: 'Неизвестная команда. Попробуйте начать заново, нажав /start. ')
+                end
               end
             end
+          else
+            clear_values
+
+            bye_message(bot: bot, message: message, additional_text: 'Неизвестная команда. Попробуйте начать заново, нажав /start. ')
           end
         end
       end
