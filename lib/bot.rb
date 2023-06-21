@@ -55,18 +55,12 @@ class Bot
 
               bye_message(bot: bot, message: message)
             else
-              if !@out.nil?
+              if !message&.text.nil? && message&.text.match?(/\A[А-Яёа-яё\-A-Za-z\s1-9]{2,}\z/)
+                respond_for_user(bot, message, forecast)
+              else
                 clear_values
 
                 bye_message(bot: bot, message: message, additional_text: 'Неизвестная команда. Попробуйте начать заново, нажав /start. ')
-              else
-                if !message&.text.nil? && message&.text.match?(/\A[А-Яёа-яё\-A-Za-z\s1-9]{2,}\z/)
-                  respond_for_user(bot, message, forecast)
-                else
-                  clear_values
-
-                  bye_message(bot: bot, message: message, additional_text: 'Неизвестная команда. Попробуйте начать заново, нажав /start. ')
-                end
               end
             end
           else
