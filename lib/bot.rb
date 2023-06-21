@@ -4,6 +4,7 @@ class Bot
     @yandex_api_tkn     = yandex_api_tkn
     @openweathermap_tkn = openweathermap_tkn
     @default_cities     = default_cities
+    @out                = []
 
     clear_values
   end
@@ -37,7 +38,7 @@ class Bot
               city_variant = message.text.gsub(/\A\//, '').to_i
 
               respond_for_user(bot, message, forecast, city_variant)
-            elsif message.text.match?(/\sДа\z/) && !@out.nil?
+            elsif message.text.match?(/\sДа\z/)
               bot.api.send_message(chat_id: message.chat.id, text: @out[@forecast_day_index], parse_mode: 'HTML')
 
               @forecast_day_index += 1
@@ -140,6 +141,6 @@ class Bot
   def clear_values
     @forecast_day_index = 0
     @quantity_of_days   = 0
-    @out                = nil
+    @out                = []
   end
 end
