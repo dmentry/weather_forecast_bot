@@ -1,8 +1,9 @@
 class Bot
-  def initialize(tg_bot_tkn:, yandex_api_tkn:, openweathermap_tkn:, default_cities:)
+  def initialize(tg_bot_tkn:, yandex_api_tkn:, openweathermap_tkn:, nasa_api_tkn:, default_cities:)
     @tg_bot_tkn         = tg_bot_tkn
     @yandex_api_tkn     = yandex_api_tkn
     @openweathermap_tkn = openweathermap_tkn
+    @nasa_api_tkn     = nasa_api_tkn
     @default_cities     = default_cities
     @out                = []
 
@@ -54,6 +55,22 @@ class Bot
               clear_values
 
               bye_message(bot: bot, message: message)
+
+            #Пасхалка
+            elsif message.text == '/photo'
+              uri = URI.parse("https://api.nasa.gov/planetary/apod?api_key=#{ @nasa_api_tkn }")
+
+              response = Net::HTTP.get_response(uri)
+
+              nasa_jsn = JSON.parse(response.body, symbolize_names: true)
+
+              msg = if nasa_jsn[:media_type] == "image"
+                      "#{ nasa_jsn[:date] }\n#{ nasa_jsn[:hdurl] }\n#{ nasa_jsn[:explanation] }"
+                    else
+                      'Сегодня картинки нет 😦'
+                    end
+
+              bot.api.send_message(chat_id: message.chat.id, text: msg, parse_mode: 'HTML')
             else
               if !message&.text.nil? && message&.text.match?(/\A[А-Яёа-яё\-A-Za-z\s1-9]{2,}\z/)
                 respond_for_user(bot, message, forecast)
