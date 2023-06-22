@@ -65,7 +65,7 @@ class Bot
               nasa_jsn = JSON.parse(response.body, symbolize_names: true)
 
               msg = if nasa_jsn[:media_type] == "image"
-                      "#{ nasa_jsn[:date] }\n#{ nasa_jsn[:hdurl] }\n#{ nasa_jsn[:explanation] }"
+                      "<b>#{ nasa_jsn[:date] }</b>\n#{ nasa_jsn[:hdurl] }\n#{ nasa_jsn[:explanation] }"
                     else
                       'Сегодня картинки нет 😦'
                     end
