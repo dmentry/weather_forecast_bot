@@ -17,14 +17,14 @@ class Bot
       Telegram::Bot::Client.run(@tg_bot_tkn) do |bot|
         start_bot_time = Time.now.to_i
 
-        begin
-          user_name = ", #{ message.from.first_name }"
-        rescue
-          user_name = ''
-        end
-
         bot.listen do |message|
           next if start_bot_time - message.date > 650
+
+            user_name = if message&.from&.first_name
+                          ", #{ message.from.first_name }"
+                        else
+                          ''
+                        end
 
           # if !message&.text.nil?
           if message.respond_to?(:text)
