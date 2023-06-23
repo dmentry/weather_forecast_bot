@@ -17,6 +17,12 @@ class Bot
       Telegram::Bot::Client.run(@tg_bot_tkn) do |bot|
         start_bot_time = Time.now.to_i
 
+        begin
+          user_name = ", #{ message.from.first_name }"
+        rescue
+          user_name = ''
+        end
+
         bot.listen do |message|
           next if start_bot_time - message.date > 650
 
@@ -27,7 +33,7 @@ class Bot
 
               bot.api.send_Message(
                                    chat_id: message.chat.id, 
-                                   text: "Привет, #{ message.from.first_name }!\nПогоду для какого населенного пункта хотите узнать?"\
+                                   text: "Привет#{ user_name }!\nПогоду для какого населенного пункта хотите узнать?"\
                                          "\n&#8505; Выберите его из списка или введите название. Можно на русском, английском, кириллицей или латиницей."\
                                          "\nПрогноз на восемь дней.",
                                    parse_mode: 'HTML'
@@ -66,7 +72,7 @@ class Bot
               nasa_jsn = JSON.parse(response.body, symbolize_names: true)
 
               msg = if nasa_jsn[:media_type] == "image"
-                      "<b>#{ nasa_jsn[:date] }</b>\n#{ nasa_jsn[:hdurl] }\n#{ nasa_jsn[:explanation] }"
+                      "<b>#{ nasa_jsn[:date] }</b>\n#{ nasa_jsn[:url] }\n#{ nasa_jsn[:explanation] }"
                     else
                       'Сегодня картинки нет 😦'
                     end
@@ -144,7 +150,7 @@ class Bot
   end
 
   def bye_message(bot:, message:, additional_text: '')
-    bye_text = additional_text + "Пока, #{message.from.first_name}!"
+    bye_text = additional_text + "Пока#{ user_name }!"
     kb = Telegram::Bot::Types::ReplyKeyboardRemove.new(remove_keyboard: true)
 
     bot.api.send_message(chat_id: message.chat.id, text: bye_text, reply_markup: kb)
