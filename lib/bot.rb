@@ -20,12 +20,6 @@ class Bot
         bot.listen do |message|
           next if start_bot_time - message.date > 650
 
-            user_name = if message&.from&.first_name
-                          ", #{ message.from.first_name }"
-                        else
-                          ''
-                        end
-
           # if !message&.text.nil?
           if message.respond_to?(:text)
             if message.text == '/start'
@@ -33,7 +27,7 @@ class Bot
 
               bot.api.send_Message(
                                    chat_id: message.chat.id, 
-                                   text: "Привет#{ user_name }!\nПогоду для какого населенного пункта хотите узнать?"\
+                                   text: "Привет!\nПогоду для какого населенного пункта хотите узнать?"\
                                          "\n&#8505; Выберите его из списка или введите название. Можно на русском, английском, кириллицей или латиницей."\
                                          "\nПрогноз на восемь дней.",
                                    parse_mode: 'HTML'
@@ -41,7 +35,7 @@ class Bot
             elsif message.text == '/stop'
               clear_values
 
-              bye_message(bot: bot, message: message, user_name: user_name)
+              bye_message(bot: bot, message: message)
             elsif message.text.match?(/\A\/\d\z/)
               city_variant = message.text.gsub(/\A\//, '').to_i
 
@@ -56,12 +50,12 @@ class Bot
               else
                 clear_values
 
-                bye_message(bot: bot, message: message, additional_text: 'На этом все. ', user_name: user_name)
+                bye_message(bot: bot, message: message, additional_text: 'На этом все. ')
               end
             elsif message.text.match?(/\sНет\z/)
               clear_values
 
-              bye_message(bot: bot, message: message, user_name: user_name)
+              bye_message(bot: bot, message: message)
 
             #Пасхалка
             elsif message.text == '/photo'
@@ -84,13 +78,13 @@ class Bot
               else
                 clear_values
 
-                bye_message(bot: bot, message: message, additional_text: 'Неизвестная команда. Попробуйте начать заново, нажав /start. ', user_name: user_name)
+                bye_message(bot: bot, message: message, additional_text: 'Неизвестная команда. Попробуйте начать заново, нажав /start. ')
               end
             end
           else
             clear_values
 
-            bye_message(bot: bot, message: message, additional_text: 'Неизвестная команда. Попробуйте начать заново, нажав /start. ', user_name: user_name)
+            bye_message(bot: bot, message: message, additional_text: 'Неизвестная команда. Попробуйте начать заново, нажав /start. ')
           end
         end
       end
@@ -132,14 +126,14 @@ class Bot
       else
         clear_values
 
-        bye_message(bot: bot, message: message, additional_text: 'На этом все. ', user_name: user_name)
+        bye_message(bot: bot, message: message, additional_text: 'На этом все. ')
       end
     else
       bot.api.send_message(chat_id: message.chat.id, text: @out, parse_mode: 'HTML')
 
       clear_values
 
-      bye_message(bot: bot, message: message, user_name: user_name)
+      bye_message(bot: bot, message: message)
     end
   end
 
@@ -149,8 +143,8 @@ class Bot
     bot.api.send_message(chat_id: message.chat.id, text: question, reply_markup: answers)
   end
 
-  def bye_message(bot:, message:, additional_text: '', user_name:)
-    bye_text = additional_text + "Пока#{ user_name }!"
+  def bye_message(bot:, message:, additional_text: '')
+    bye_text = additional_text + "Пока!"
     kb = Telegram::Bot::Types::ReplyKeyboardRemove.new(remove_keyboard: true)
 
     bot.api.send_message(chat_id: message.chat.id, text: bye_text, reply_markup: kb)
