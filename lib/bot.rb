@@ -46,7 +46,7 @@ class Bot
               @forecast_day_index += 1
 
               if @forecast_day_index <= @quantity_of_days 
-                send_msg_with_keabord(bot: bot, message: message, question: 'Дальше?', keyboard_values: [['✔️ Да', '❌ Нет']])
+                send_msg_with_keabord(bot: bot, message: message, question: 'Дальше?', keyboard_values: [[text: '✔️ Да'], [text: '❌ Нет']])
               else
                 clear_values
 
@@ -122,7 +122,7 @@ class Bot
       @forecast_day_index += 1
 
       if @forecast_day_index <= @quantity_of_days 
-        send_msg_with_keabord(bot: bot, message: message, question: 'Дальше?', keyboard_values: [['✔️ Да', '❌ Нет']])
+        send_msg_with_keabord(bot: bot, message: message, question: 'Дальше?', keyboard_values: [[text: '✔️ Да'], [text: '❌ Нет']])
       else
         clear_values
 
