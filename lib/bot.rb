@@ -14,79 +14,86 @@ class Bot
     forecast = ForecastOpenweathermap.new(@openweathermap_tkn)
 
     loop do
-      Telegram::Bot::Client.run(@tg_bot_tkn) do |bot|
-        start_bot_time = Time.now.to_i
+      begin
+        Telegram::Bot::Client.run(@tg_bot_tkn) do |bot|
+          start_bot_time = Time.now.to_i
 
-        bot.listen do |message|
-          next if start_bot_time - message.date > 650
+          bot.listen do |message|
+            next if start_bot_time - message.date > 650
 
-          # if !message&.text.nil?
-          if message.respond_to?(:text)
-            if message.text == '/start'
-              clear_values
-
-              bot.api.send_Message(
-                                   chat_id: message.chat.id, 
-                                   text: "Привет!\nПогоду для какого населенного пункта хотите узнать?"\
-                                         "\n&#8505; Выберите его из списка или введите название. Можно на русском, английском, кириллицей или латиницей."\
-                                         "\nПрогноз на восемь дней.",
-                                   parse_mode: 'HTML'
-                                  )
-            elsif message.text == '/stop'
-              clear_values
-
-              bye_message(bot: bot, message: message)
-            elsif message.text.match?(/\A\/\d\z/)
-              city_variant = message.text.gsub(/\A\//, '').to_i
-
-              respond_for_user(bot, message, forecast, city_variant)
-            elsif message.text.match?(/\sДа\z/) && @out.size > 0
-              bot.api.send_message(chat_id: message.chat.id, text: @out[@forecast_day_index], parse_mode: 'HTML')
-
-              @forecast_day_index += 1
-
-              if @forecast_day_index <= @quantity_of_days 
-                send_msg_with_keabord(bot: bot, message: message, question: 'Дальше?', keyboard_values: [[text: '✔️ Да'], [text: '❌ Нет']])
-              else
+            # if !message&.text.nil?
+            if message.respond_to?(:text)
+              if message.text == '/start'
                 clear_values
 
-                bye_message(bot: bot, message: message, additional_text: 'На этом все. ')
+                bot.api.send_Message(
+                                     chat_id: message.chat.id, 
+                                     text: "Привет!\nПогоду для какого населенного пункта хотите узнать?"\
+                                           "\n&#8505; Выберите его из списка или введите название. Можно на русском, английском, кириллицей или латиницей."\
+                                           "\nПрогноз на восемь дней.",
+                                     parse_mode: 'HTML'
+                                    )
+              elsif message.text == '/stop'
+                clear_values
+
+                bye_message(bot: bot, message: message)
+              elsif message.text.match?(/\A\/\d\z/)
+                city_variant = message.text.gsub(/\A\//, '').to_i
+
+                respond_for_user(bot, message, forecast, city_variant)
+              elsif message.text.match?(/\sДа\z/) && @out.size > 0
+                bot.api.send_message(chat_id: message.chat.id, text: @out[@forecast_day_index], parse_mode: 'HTML')
+
+                @forecast_day_index += 1
+
+                if @forecast_day_index <= @quantity_of_days 
+                  send_msg_with_keabord(bot: bot, message: message, question: 'Дальше?', keyboard_values: [[text: '✔️ Да'], [text: '❌ Нет']])
+                else
+                  clear_values
+
+                  bye_message(bot: bot, message: message, additional_text: 'На этом все. ')
+                end
+              elsif message.text.match?(/\sНет\z/)
+                clear_values
+
+                bye_message(bot: bot, message: message)
+
+              #Пасхалка
+              elsif message.text == '/photo'
+                uri = URI.parse("https://api.nasa.gov/planetary/apod?api_key=#{ @nasa_api_tkn }")
+
+                response = Net::HTTP.get_response(uri)
+
+                nasa_jsn = JSON.parse(response.body, symbolize_names: true)
+
+                msg = if nasa_jsn[:media_type] == "image"
+                        "<b>#{ nasa_jsn[:date] }</b>\n#{ nasa_jsn[:url] }\n#{ nasa_jsn[:explanation] }"
+                      else
+                        'Сегодня картинки нет 😦'
+                      end
+
+                bot.api.send_message(chat_id: message.chat.id, text: msg, parse_mode: 'HTML')
+              else
+                if !message&.text.nil? && message&.text.match?(/\A[А-Яёа-яё\-A-Za-z\s1-9]{2,}\z/)
+                  respond_for_user(bot, message, forecast)
+                else
+                  clear_values
+
+                  bye_message(bot: bot, message: message, additional_text: 'Неизвестная команда. Попробуйте начать заново, нажав /start. ')
+                end
               end
-            elsif message.text.match?(/\sНет\z/)
-              clear_values
-
-              bye_message(bot: bot, message: message)
-
-            #Пасхалка
-            elsif message.text == '/photo'
-              uri = URI.parse("https://api.nasa.gov/planetary/apod?api_key=#{ @nasa_api_tkn }")
-
-              response = Net::HTTP.get_response(uri)
-
-              nasa_jsn = JSON.parse(response.body, symbolize_names: true)
-
-              msg = if nasa_jsn[:media_type] == "image"
-                      "<b>#{ nasa_jsn[:date] }</b>\n#{ nasa_jsn[:url] }\n#{ nasa_jsn[:explanation] }"
-                    else
-                      'Сегодня картинки нет 😦'
-                    end
-
-              bot.api.send_message(chat_id: message.chat.id, text: msg, parse_mode: 'HTML')
             else
-              if !message&.text.nil? && message&.text.match?(/\A[А-Яёа-яё\-A-Za-z\s1-9]{2,}\z/)
-                respond_for_user(bot, message, forecast)
-              else
-                clear_values
+              clear_values
 
-                bye_message(bot: bot, message: message, additional_text: 'Неизвестная команда. Попробуйте начать заново, нажав /start. ')
-              end
+              bye_message(bot: bot, message: message, additional_text: 'Неизвестная команда. Попробуйте начать заново, нажав /start. ')
             end
-          else
-            clear_values
-
-            bye_message(bot: bot, message: message, additional_text: 'Неизвестная команда. Попробуйте начать заново, нажав /start. ')
           end
         end
+      rescue => e
+        # сделать запись в текстовый файл
+        puts '***********************************************************************************************'
+        puts e.message
+        puts '***********************************************************************************************'
       end
     end
   end
@@ -147,7 +154,14 @@ class Bot
     bye_text = additional_text + "Пока!"
     kb = Telegram::Bot::Types::ReplyKeyboardRemove.new(remove_keyboard: true)
 
-    bot.api.send_message(chat_id: message.chat.id, text: bye_text, reply_markup: kb)
+    begin
+      bot.api.send_message(chat_id: message.chat.id, text: bye_text, reply_markup: kb)
+    rescue => e
+      # сделать запись в текстовый файл
+      puts '***********************************************************************************************'
+      puts e.message
+      puts '***********************************************************************************************'
+    end
   end
 
   def clear_values
