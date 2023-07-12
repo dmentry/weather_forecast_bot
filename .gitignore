@@ -1,2 +1,4 @@
 .env
 .gitignore
+tg_bot_log.txt
+users_id.txt
