@@ -21,7 +21,6 @@ class Bot
           bot.listen do |message|
             next if start_bot_time - message.date > 650
 
-            # if !message&.text.nil?
             if message.respond_to?(:text)
 
               File.open('users_id.txt', "a:UTF-8") do |file| 
@@ -47,7 +46,11 @@ class Bot
 
                 respond_for_user(bot, message, forecast, city_variant)
               elsif message.text.match?(/\sДа\z/) && @out.size > 0
-                bot.api.send_message(chat_id: message.chat.id, text: @out[@forecast_day_index], parse_mode: 'HTML')
+                begin
+                  bot.api.send_message(chat_id: message.chat.id, text: @out[@forecast_day_index], parse_mode: 'HTML')
+                rescue => e
+                  log_writing(e: e, error_position: 'elsif-Да')
+                end
 
                 @forecast_day_index += 1
 
@@ -77,7 +80,11 @@ class Bot
                         'Сегодня картинки нет 😦'
                       end
 
-                bot.api.send_message(chat_id: message.chat.id, text: msg, parse_mode: 'HTML')
+                begin
+                  bot.api.send_message(chat_id: message.chat.id, text: msg, parse_mode: 'HTML')
+                rescue => e
+                  log_writing(e: e, error_position: 'пасхалке')
+                end
               else
                 if !message&.text.nil? && message&.text.match?(/\A[А-Яёа-яё\-A-Za-z\s1-9]{2,}\z/)
                   respond_for_user(bot, message, forecast)
@@ -96,7 +103,7 @@ class Bot
         end
       rescue => e
         File.open('tg_bot_log.txt', "a:UTF-8") do |file| 
-          file.puts("#{ Time.now }:")
+          file.puts("#{ Time.now.strftime("%d.%m.%Y %T") }:")
           file.puts('Ошибка в главном цикле:')
           file.puts("Класс ошибки: #{ e.class }")
           file.puts("Сообщение ошибки: #{ e.message }")
@@ -131,7 +138,11 @@ class Bot
     @quantity_of_days = @out.size - 1
 
     if @quantity_of_days > 1
-      bot.api.send_message(chat_id: message.chat.id, text: @out[@forecast_day_index], parse_mode: 'HTML')
+      begin
+        bot.api.send_message(chat_id: message.chat.id, text: @out[@forecast_day_index], parse_mode: 'HTML')
+      rescue => e
+        log_writing(e: e, error_position: 'respond_for_user-if')
+      end
 
       @forecast_day_index += 1
 
@@ -143,7 +154,11 @@ class Bot
         bye_message(bot: bot, message: message, additional_text: 'На этом все. ')
       end
     else
-      bot.api.send_message(chat_id: message.chat.id, text: @out, parse_mode: 'HTML')
+      begin
+        bot.api.send_message(chat_id: message.chat.id, text: @out, parse_mode: 'HTML')
+      rescue => e
+        log_writing(e: e, error_position: 'respond_for_user-else')
+      end
 
       clear_values
 
@@ -154,7 +169,11 @@ class Bot
   def send_msg_with_keabord(bot:, message:, question:, keyboard_values:)
     answers = Telegram::Bot::Types::ReplyKeyboardMarkup.new(keyboard: keyboard_values, one_time_keyboard: true, resize_keyboard: true)
 
-    bot.api.send_message(chat_id: message.chat.id, text: question, reply_markup: answers)
+    begin
+      bot.api.send_message(chat_id: message.chat.id, text: question, reply_markup: answers)
+    rescue => e
+      log_writing(e: e, error_position: 'send_msg_with_keabord')
+    end
   end
 
   def bye_message(bot:, message:, additional_text: '')
@@ -164,12 +183,7 @@ class Bot
     begin
       bot.api.send_message(chat_id: message.chat.id, text: bye_text, reply_markup: kb)
     rescue => e
-      File.open('tg_bot_log.txt', "a:UTF-8") do |file| 
-        file.puts("#{ Time.now }:")
-        file.puts('Ошибка в send_message:')
-        file.puts("Класс ошибки: #{ e.class }")
-        file.puts("Сообщение ошибки: #{ e.message }")
-      end
+      log_writing(e: e, error_position: 'bye_message')
     end
   end
 
@@ -177,5 +191,14 @@ class Bot
     @forecast_day_index = 0
     @quantity_of_days   = 0
     @out                = []
+  end
+
+  def log_writing(e: e, error_position: error_position)
+    File.open('log.txt', "a:UTF-8") do |file| 
+      file.puts("#{ Time.now.strftime("%d.%m.%Y %T") } | Ошибка в #{ error_position }")
+      file.puts("Класс ошибки: #{ e.class }")
+      file.puts("Сообщение ошибки: #{ e.message }")
+      file.puts
+    end
   end
 end
