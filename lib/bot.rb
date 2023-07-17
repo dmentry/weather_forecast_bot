@@ -193,7 +193,7 @@ class Bot
     @out                = []
   end
 
-  def log_writing(e: e, error_position: error_position)
+  def log_writing(e:, error_position:)
     File.open('log.txt', "a:UTF-8") do |file| 
       file.puts("#{ Time.now.strftime("%d.%m.%Y %T") } | Ошибка в #{ error_position }")
       file.puts("Класс ошибки: #{ e.class }")
