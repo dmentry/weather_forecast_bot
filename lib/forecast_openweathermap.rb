@@ -98,17 +98,17 @@ class ForecastOpenweathermap
     header         = "#{ forecast_day_name_rus }#{ week_day_name_rus }, #{ Time.at(forecast[:dt]).strftime("%d.%m.%Y") }:"
     moon           = "#{ moon_phase(forecast[:moon_phase]) }                    <b>#{ time_normalize(forecast[:moonrise]) }</b> - <b>#{ time_normalize(forecast[:moonset]) }</b>"
     sun            = "&#127774;                    <b>#{ time_normalize(forecast[:sunrise]) }</b> - <b>#{ time_normalize(forecast[:sunset]) }</b>"
-    humidity       = "Влажность:   <b>#{ forecast[:humidity] }%</b>"
+    humidity       = "Влажность:    <b>#{ forecast[:humidity] }%</b>"
     pressure       = "Давление:     <b>#{ (forecast[:pressure] * 0.75).round } мм рт. ст.</b>"
-    cloudness      = "Облачность: <b>#{ forecast[:clouds] }%</b>"
+    cloudness      = "Облачность:  <b>#{ forecast[:clouds] }%</b>"
     morning        = "Утром:            <b>#{ temperature_human(forecast[:temp][:morn].round) }</b>#{ celsius }, ощущается, как <b>#{ temperature_human(forecast[:feels_like][:morn].round) }</b>#{ celsius }"
     day            = "Днем:             <b>#{ temperature_human(forecast[:temp][:day].round) }</b>#{ celsius }, ощущается, как <b>#{ temperature_human(forecast[:feels_like][:day].round) }</b>#{ celsius }"
     evening        = "Вечером:       <b>#{ temperature_human(forecast[:temp][:eve].round) }</b>#{ celsius }, ощущается, как <b>#{ temperature_human(forecast[:feels_like][:eve].round) }</b>#{ celsius }"
     night          = "Ночью:           <b>#{ temperature_human(forecast[:temp][:night].round) }</b>#{ celsius }, ощущается, как <b>#{ temperature_human(forecast[:feels_like][:night].round) }</b>#{ celsius }"
-    wind           = "Ветер:            <b>#{ forecast[:wind_speed].round }м/с #{ wind_direction }</b>#{ wind_gust }"
+    wind           = "Ветер:             <b>#{ forecast[:wind_speed].round }м/с #{ wind_direction }</b>#{ wind_gust }"
     precipitation  = "Погода:          #{ emoji(forecast[:weather][0][:id]) }"
     precipitation2 = if forecast[:pop].to_f != 0.0
-                       "Осадки:         <b>#{ (forecast[:pop]*100).to_i }%</b> #{ precipitations }"
+                       "Осадки:          <b>#{ (forecast[:pop]*100).to_i }%</b> #{ precipitations }"
                      else
                        "Осадков не ожидается"
                      end
