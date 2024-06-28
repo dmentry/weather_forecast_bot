@@ -1,9 +1,8 @@
 class Bot
-  def initialize(tg_bot_tkn:, yandex_api_tkn:, openweathermap_tkn:, nasa_api_tkn:, default_cities:)
+  def initialize(tg_bot_tkn:, openweathermap_tkn:, nasa_api_tkn:, default_cities:)
     @tg_bot_tkn         = tg_bot_tkn
-    @yandex_api_tkn     = yandex_api_tkn
     @openweathermap_tkn = openweathermap_tkn
-    @nasa_api_tkn     = nasa_api_tkn
+    @nasa_api_tkn       = nasa_api_tkn
     @default_cities     = default_cities
     @out                = []
 
@@ -32,9 +31,16 @@ class Bot
 
                 bot.api.send_Message(
                                      chat_id: message.chat.id, 
-                                     text: "Привет!\nПогоду для какого населенного пункта хотите узнать?"\
-                                           "\n&#8505; Выберите его из списка или введите название. Можно на русском, английском, кириллицей или латиницей."\
-                                           "\nПрогноз на восемь дней.",
+                                     text: "Привет!\nПогоду для какого населенного пункта хотите узнать?\n",
+                                     parse_mode: 'HTML'
+                                    )
+              elsif message.text == '/help'
+                bot.api.send_Message(
+                                     chat_id: message.chat.id, 
+                                     text: "\n&#8505; Выберите населенный пункт из списка или введите название.\nНазвание населенного пункта можно вводить "\
+                                           "на русском или на английском (не просто латиницей, а именно по-английски). "\
+                                           "Если населенных пунктов с указанным названием несколько, то выбирается наиболее крупный."\
+                                           "\nПрогноз на восемь дней.\nВ качестве бонуса по команде /photo будет показана фотка дня NASA.",
                                      parse_mode: 'HTML'
                                     )
               elsif message.text == '/stop'
@@ -74,8 +80,10 @@ class Bot
 
                 nasa_jsn = JSON.parse(response.body, symbolize_names: true)
 
+                dt = Date&.parse(nasa_jsn[:date])&.strftime("%d.%m.%Y")
+
                 msg = if nasa_jsn[:media_type] == "image"
-                        "<b>#{ nasa_jsn[:date] }</b>\n#{ nasa_jsn[:url] }\n#{ nasa_jsn[:explanation] }"
+                        "<b>Фото дня NASA на #{ dt }</b>:\n#{ nasa_jsn[:url] }\n#{ nasa_jsn[:explanation] }"
                       else
                         'Сегодня картинки нет 😦'
                       end
@@ -119,17 +127,29 @@ class Bot
       city_coordinates = @default_cities.values[choise - 1]
       city_name = @default_cities.keys[choise - 1]
 
-      @out = forecast.call(city_coordinates, city_name)
+      @out = forecast.call(city_coordinates: city_coordinates, city_name: city_name)
     else
-      city_name = message.text
+      city_name = message&.text
 
-      city_info = YandexCoordinates.new(@yandex_api_tkn).city_info(city_name)
+      parser = URI::Parser.new
 
-      if city_info
-        city_coordinates = city_info[1]
-        city_name = city_info[0]
+      message_encoded = parser.escape(city_name)
 
-        @out = forecast.call(city_coordinates, city_name)
+      uri_parsed = URI.parse("http://api.openweathermap.org/geo/1.0/direct?q=#{ message_encoded }&limit=1&appid=#{ @openweathermap_tkn }")
+
+      feedback = Net::HTTP.get_response(uri_parsed)
+
+      server_response = JSON.parse(feedback.body, symbolize_names: true)
+
+      if server_response.size > 0
+        server_response.each do |city|
+          city_ru_name = city[:local_names][:ru] || city[:name]
+          city_lat     = city[:lat]
+          city_lon     = city[:lon]
+          city_state   = city[:state]
+
+          @out = forecast.call(city_name: city_ru_name, city_coordinates: [city_lat, city_lon], city_state: city_state)
+        end
       else
         @out << "Указанный населенный пункт не найден."
       end
@@ -155,7 +175,7 @@ class Bot
       end
     else
       begin
-        bot.api.send_message(chat_id: message.chat.id, text: @out, parse_mode: 'HTML')
+        bot.api.send_message(chat_id: message.chat.id, text: @out&.first, parse_mode: 'HTML')
       rescue => e
         log_writing(e: e, error_position: 'respond_for_user-else')
       end

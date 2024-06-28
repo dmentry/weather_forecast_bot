@@ -3,15 +3,15 @@ class ForecastOpenweathermap
     @openweathermap_token ||= token
   end
 
-  def call(coordinates, city_name)
+  def call(city_name:, city_coordinates:, city_state: nil)
     @city_name = city_name
-    # Убрать все точки в конце, если они есть, сделать первую букву заглавной и стиль шрифта - жирный
+    # Убрать все точки в конце, если они есть, сделать первую букву заглавной
     @city_name    = @city_name.gsub(/\.{1,}\z/, '') if @city_name.match?(/\.{1,}\z/)
     @city_name    = @city_name.dup
     @city_name[0] = @city_name[0].capitalize
-    @city_name    = '<b>' + @city_name + '</b>'
+    @city_state   = city_state
 
-    forecast_raw_data = weather_json(coordinates)[:daily]
+    forecast_raw_data = weather_json(city_coordinates)[:daily]
 
     create_forecast(forecast_raw_data)
   end
@@ -113,6 +113,12 @@ class ForecastOpenweathermap
                        "Осадков не ожидается"
                      end
 
+    city_state_name = if !@city_state.nil? && @city_state.size > 0
+                        " (#{ @city_state })"
+                      else
+                        ''
+                      end
+
     if forecast_date == Date.today
       case Time.now.hour
       when 0..8
@@ -140,7 +146,7 @@ class ForecastOpenweathermap
       end
 
       forecast = <<~FORECAST
-        #{ @city_name }.
+        <b>#{ @city_name }#{ city_state_name }.</b>
         #{ header }
         #{ sun }
         #{ moon }
