@@ -103,6 +103,10 @@ class Bot
                             'Вы выбрали прогноз для Новосибирска'
                           elsif message.data == '9'
                             'Вы выбрали прогноз для Владивостока'
+                          elsif message.data == 'yes'
+                            'Вы выбрали продолжить'
+                          elsif message.data == 'no'
+                            'На этом останавливаемся'
                           end
 
               bot.api.answerCallbackQuery(callback_query_id: message.id, text: show_text)
@@ -126,11 +130,13 @@ class Bot
                 else
                   clear_values
 
-                  bye_message(bot: bot, message: message, additional_text: 'На этом все. ')
+                  bye_message(bot: bot, message: message, additional_text: 'На этом все.')
                 end
 
               elsif message.data == 'no'
                 clear_values
+
+                bye_message(bot: bot, message: message, additional_text: 'На этом все.')
               end
 
             end
