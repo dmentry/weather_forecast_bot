@@ -265,6 +265,6 @@ class Bot
 
     kb = Telegram::Bot::Types::InlineKeyboardMarkup.new(inline_keyboard: [[moscow, balashikha, pokrov], [krasnodar, maykop], [spb, ekat], [novosib, vladivostok]])
 
-    bot.api.send_message(chat_id: message.from.id, text: "Привет!\nПогоду для какого населенного пункта хотите узнать? Выберите или введите название:", reply_markup: kb, parse_mode: 'HTML')
+    bot.api.send_message(chat_id: message.from.id, text: "Привет!\nПогоду для какого населенного пункта хотите узнать? Выберите или введите название\координаты:", reply_markup: kb, parse_mode: 'HTML')
   end
 end
