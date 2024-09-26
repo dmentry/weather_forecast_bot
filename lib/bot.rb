@@ -43,7 +43,7 @@ class Bot
                                              "вводить по-русски, по-английски или по-русски латиницей. Если название распространенное, то конкретизируйте его, "\
                                              "добавив область и/или район."\
                                              "\nТакже, можно просто ввести координаты в десятичном формате через запятую: широта, долгота.\nНапример: 55.753215, 37.990546"\
-                                             "\nПрогноз на шестнадцать дней.\nВ качестве бонуса по команде /photo будет показана фотка дня NASA.",
+                                             "\nПрогноз на 15 дней.\nВ качестве бонуса по команде /photo будет показана фотка дня NASA.",
                                        parse_mode: 'HTML'
                                       )
                 #Пасхалка
@@ -130,13 +130,13 @@ class Bot
                 else
                   clear_values
 
-                  bye_message(bot: bot, message: message, additional_text: 'На этом все.')
+                  bye_message(bot: bot, message: message, additional_text: 'Готово')
                 end
 
               elsif message.data == 'no'
                 clear_values
 
-                bye_message(bot: bot, message: message, additional_text: 'На этом все.')
+                bye_message(bot: bot, message: message, additional_text: 'На этом останавливаемся')
               end
 
             end

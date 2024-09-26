@@ -29,4 +29,5 @@ If you want to have NASA photo of the day, generate token at `https://api.nasa.g
 ```
 weather_bot.rb
 ```
-
+* TODO:
+add localization
