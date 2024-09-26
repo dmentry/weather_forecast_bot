@@ -1,17 +1,17 @@
 class Bot
-  def initialize(tg_bot_tkn:, openweathermap_tkn:, nasa_api_tkn:, yandex_api_tkn:, default_cities:)
-    @tg_bot_tkn         = tg_bot_tkn
-    @openweathermap_tkn = openweathermap_tkn
-    @yandex_api_tkn     = yandex_api_tkn
-    @nasa_api_tkn       = nasa_api_tkn
-    @default_cities     = default_cities
-    @out                = []
+  def initialize(tg_bot_tkn:, nasa_api_tkn:, yandex_api_tkn:, weather_tkn:, default_cities:)
+    @tg_bot_tkn     = tg_bot_tkn
+    @yandex_api_tkn = yandex_api_tkn
+    @nasa_api_tkn   = nasa_api_tkn
+    @weather_tkn    = weather_tkn
+    @default_cities = default_cities
+    @out            = []
 
     clear_values
   end
 
   def main_method
-    forecast = ForecastOpenweathermap.new(@openweathermap_tkn)
+    forecast = WeatherForecast.new(@weather_tkn)
 
     loop do
       begin
@@ -39,10 +39,11 @@ class Bot
                 elsif message.text == '/help'
                   bot.api.send_Message(
                                        chat_id: message.chat.id, 
-                                       text: "&#8505;\nВыберите населенный пункт из списка или введите название.\nНазвание населенного пункта можно "\
-                                             "вводить на русском, латиницей или по-английски. Если название распространенное, то конкретизируйте его, "\
+                                       text: "&#8505;\nВыберите населенный пункт из списка или введите его название.\nМожно "\
+                                             "вводить по-русски, по-английски или по-русски латиницей. Если название распространенное, то конкретизируйте его, "\
                                              "добавив область и/или район."\
-                                             "\nПрогноз на восемь дней.\nВ качестве бонуса по команде /photo будет показана фотка дня NASA.",
+                                             "\nТакже, можно просто ввести координаты в десятичном формате через запятую: широта, долгота.\nНапример: 55.753215, 37.990546"\
+                                             "\nПрогноз на шестнадцать дней.\nВ качестве бонуса по команде /photo будет показана фотка дня NASA.",
                                        parse_mode: 'HTML'
                                       )
                 #Пасхалка
@@ -64,11 +65,15 @@ class Bot
                   begin
                     bot.api.send_message(chat_id: message.chat.id, text: msg, parse_mode: 'HTML')
                   rescue => e
-                    log_writing(e: e, error_position: 'пасхалке')
+                    log_writing(e: e, error_position: 'пасхалка')
                   end
                 else
-                  if message&.text.match?(/\A[А-Яёа-яё\-A-Za-z\s1-9]{2,}\z/) && @out.size > 0
-                    bot.api.send_message(chat_id: message.chat.id, text: "Выберите 'Да' или 'Нет'.", parse_mode: 'HTML')
+                  if @out.size > 0
+                    yes = Telegram::Bot::Types::InlineKeyboardButton.new(text: '✔️ Да', callback_data: 'yes')
+                    no  = Telegram::Bot::Types::InlineKeyboardButton.new(text: '❌ Нет', callback_data: 'no')
+                    kb  = Telegram::Bot::Types::InlineKeyboardMarkup.new(inline_keyboard: [[yes, no]])
+
+                    bot.api.send_message(chat_id: message.from.id, text: "Дальше? Выберите 'Да' или 'Нет'.", reply_markup: kb, parse_mode: 'HTML')
                   else
                     respond_for_user(bot, message, forecast)
                   end
@@ -126,8 +131,6 @@ class Bot
 
               elsif message.data == 'no'
                 clear_values
-
-                bye_message(bot: bot, message: message)
               end
 
             end
@@ -153,36 +156,29 @@ class Bot
 
       @out = forecast.call(city_coordinates: city_coordinates, city_name: city_name)
     else
-      city_name = message&.text
+      city_data = message&.text
 
-      # Определение координат с помощью openweathermap
-      # parser = URI::Parser.new
-      # message_encoded = parser.escape(city_name)
-      # uri_parsed = URI.parse("http://api.openweathermap.org/geo/1.0/direct?q=#{ message_encoded }&limit=1&appid=#{ @openweathermap_tkn }")
-      # feedback = Net::HTTP.get_response(uri_parsed)
-      # server_response = JSON.parse(feedback.body, symbolize_names: true)
-      # if server_response.size > 0
-      #   server_response.each do |city|
-      #     city_ru_name = city[:local_names][:ru] || city[:name]
-      #     city_lat     = city[:lat]
-      #     city_lon     = city[:lon]
-      #     city_state   = city[:state]
+      return @out << "Указанный населенный пункт не найден." if !city_data
 
-      #     @out = forecast.call(city_name: city_ru_name, city_coordinates: [city_lat, city_lon], city_state: city_state)
-      #   end
-      # else
-      #   @out << "Указанный населенный пункт не найден."
-      # end
+      if city_data =~ /\A-?\d{,2}\.\d+,\s?-?\d{,3}\.\d+\z/
+        coordinates_dec = city_data.scan(/(\A-?\d{,2})\.\d+,\s?(-?\d{,3})\.\d+\z/).flatten
 
-      city_info = YandexCoordinates.new(@yandex_api_tkn).city_info(city_name)
-
-      if city_info
-        city_coordinates = city_info[1]
-        city_name = city_info[0]
-
-        @out = forecast.call(city_name: city_name, city_coordinates: city_coordinates)
+        if coordinates_dec.size == 2 && (coordinates_dec.first.to_i >= -90) && (coordinates_dec.first.to_i <= 90) && (coordinates_dec.last.to_i >= -180) && (coordinates_dec.last.to_i <= 180)
+          @out = forecast.call(city_name: "Прогноз для точки с координатами: #{ city_data }", city_coordinates: city_data)
+        else
+          return @out << "Координаты некорректные. Введите сначала широту, потом долготу в формате: ШШ.ШШШШ,ДД.ДДДД"
+        end
       else
-        @out << "Указанный населенный пункт не найден."
+        city_info = YandexCoordinates.new(@yandex_api_tkn).city_info(city_data)
+
+        if city_info
+          city_coordinates = city_info[1]
+          city_name = city_info[0]
+
+          @out = forecast.call(city_name: city_name, city_coordinates: city_coordinates)
+        else
+          @out << "Указанный населенный пункт не найден."
+        end
       end
     end
 
@@ -212,8 +208,6 @@ class Bot
       end
 
       clear_values
-
-      bye_message(bot: bot, message: message)
     end
   end
 
@@ -227,7 +221,7 @@ class Bot
   end
 
   def bye_message(bot:, message:, additional_text: '')
-    bye_text = additional_text + "Пока!"
+    bye_text = additional_text
     kb = Telegram::Bot::Types::ReplyKeyboardRemove.new(remove_keyboard: true)
 
     begin
