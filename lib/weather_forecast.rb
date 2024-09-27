@@ -131,7 +131,7 @@ class WeatherForecast
     header         = "#{ forecast_day_name_rus }#{ week_day_name_rus }, <b>#{ Date.parse(forecast[:datetime]).strftime("%d.%m.%Y") }</b>:"
     sun            = "&#127774; <b>#{ Time.parse(forecast[:sunrise]).strftime("%H:%M") }</b> - <b>#{ Time.parse(forecast[:sunset]).strftime("%H:%M") }</b>, световой день: <b>#{ time_difference(forecast[:sunset], forecast[:sunrise]) }</b>"
     moon           = "#{ moon_phase(forecast[:moonphase]) }"
-    temperature    = "Температура: <b>#{ temperature_human(forecast[:temp].round) }</b>#{ celsius } (от <b>#{ temperature_human(forecast[:tempmin].round) }</b>#{ celsius } до <b>#{ temperature_human(forecast[:tempmax].round) }</b>#{ celsius }), ощущается как <b>#{ temperature_human(forecast[:feelslike].round) }</b>#{ celsius }"
+    temperature    = "Температура: <b>#{ temperature_human(forecast[:tempmin].round) }</b>#{ celsius }...<b>#{ temperature_human(forecast[:tempmax].round) }</b>#{ celsius }, ощущается как <b>#{ temperature_human(forecast[:feelslike].round) }</b>#{ celsius }"
     pressure       = "Давление:       <b>#{ (forecast[:pressure] * 0.75).round }мм рт. ст.</b>"
     humidity       = "Влажность:     <b>#{ forecast[:humidity].to_i }%</b>"
     wind           = "Ветер:              <b>#{ forecast[:windspeed].round }м/с #{ wind_direction(forecast[:winddir]) }</b>#{ wind_gust }"
@@ -241,6 +241,6 @@ class WeatherForecast
     hours   = (((Time.parse(t2) - Time.parse(t1))/3600)%24).to_i
     minutes = (((Time.parse(t2) - Time.parse(t1))/60)%60).to_i
 
-    "#{ hours }:#{ minutes }"
+    "#{ hours }ч #{ minutes }м"
   end
 end
