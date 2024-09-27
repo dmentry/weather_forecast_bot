@@ -145,7 +145,7 @@ class WeatherForecast
 
     if first_message
         forecast = <<~FORECAST
-        <b>#{ @city_name }</b>.\nЧасовой пояс: #{ @time_zone }, разница: #{ @time_zone_shift }ч.\n
+        <b>#{ @city_name }</b>.\nЧасовой пояс: #{ @time_zone } (#{ @time_zone_shift }ч).\n
         #{ header }
         #{ sun }
         #{ moon }
