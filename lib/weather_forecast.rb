@@ -179,9 +179,9 @@ class WeatherForecast
     when 'wind'                  # Wind speed is high (greater than 30 kph or mph) 
       "💨"
     when 'showers-day'           # Rain showers during the day
-      "&#x2614;"
+      "&#127783;"
     when 'showers-night'         # Rain showers during the night
-      "&#x2614;"
+      "&#127783;"
     when 'rain'                  # Amount of rainfall is greater than zero 
       "&#127783;"
     when 'thunder-rain'          # Thunderstorms throughout the day or night
@@ -197,7 +197,7 @@ class WeatherForecast
     when 'snow-showers-night'    # Periods of snow during the night
       "&#127784;"
     when 'fog'                   # Visibility is low (lower than one kilometer or mile)
-      "&#x1F301;"
+      "&#x1F32B;"
     when 'clear-day'             # clear day sky
       "&#9728;"
     when 'clear-night'           # clear night sky
