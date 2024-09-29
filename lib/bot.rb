@@ -136,7 +136,7 @@ class Bot
               elsif message.data == 'no'
                 clear_values
 
-                bye_message(bot: bot, message: message, additional_text: 'На этом останавливаемся')
+                bye_message(bot: bot, message: message, additional_text: 'Ок, на этом останавливаемся')
               end
 
             end
@@ -221,7 +221,7 @@ class Bot
     yes = Telegram::Bot::Types::InlineKeyboardButton.new(text: '✔️ Да', callback_data: 'yes')
     no  = Telegram::Bot::Types::InlineKeyboardButton.new(text: '❌ Нет', callback_data: 'no')
 
-    kb = Telegram::Bot::Types::InlineKeyboardMarkup.new(inline_keyboard: [[yes, no]])
+    kb = Telegram::Bot::Types::InlineKeyboardMarkup.new(inline_keyboard: [[no, yes]])
 
     bot.api.send_message(chat_id: message.from.id, text: 'Дальше?', reply_markup: kb, parse_mode: 'HTML')
   end
@@ -265,6 +265,6 @@ class Bot
 
     kb = Telegram::Bot::Types::InlineKeyboardMarkup.new(inline_keyboard: [[moscow, balashikha, pokrov], [krasnodar, maykop], [spb, ekat], [novosib, vladivostok]])
 
-    bot.api.send_message(chat_id: message.from.id, text: "Привет!\nПогоду для какого населенного пункта хотите узнать? Выберите или введите название\координаты:", reply_markup: kb, parse_mode: 'HTML')
+    bot.api.send_message(chat_id: message.from.id, text: "Привет!\nПогоду для какого населенного пункта хотите узнать? Выберите или введите название населенного пункта или его координаты:", reply_markup: kb, parse_mode: 'HTML')
   end
 end

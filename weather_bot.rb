@@ -17,7 +17,7 @@ YANDEX_API_TOKEN = ENV['YANDEX_API_KEY']
 NASA_API_KEY     = ENV['NASA_API_KEY']
 WEATHER_API_KEY  = ENV['WEATHER_API_KEY']
 
-cities = {
+CITIES = {
           'Москва' => [55.753, 37.621],
           'Балашиха' => [55.7471, 38.0224],
           'Покров' => [55.9192, 39.1755],
@@ -28,14 +28,13 @@ cities = {
           'Новосибирск' => [55.030, 82.920],
           'Владивосток' => [43.115, 131.885]
          }
-cities.freeze
 
 bot = Bot.new(
                 tg_bot_tkn: TG_BOT_TOKEN, 
                 nasa_api_tkn: NASA_API_KEY, 
                 yandex_api_tkn: YANDEX_API_TOKEN,
                 weather_tkn: WEATHER_API_KEY,
-                default_cities: cities
+                default_cities: CITIES
               )
 
 bot.main_method

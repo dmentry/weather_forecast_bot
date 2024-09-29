@@ -92,10 +92,9 @@ class WeatherForecast
   def create_daily_forecast(forecast:, first_message: nil)
     return '' if !forecast
 
-    # celsius = "\xE2\x84\x83"
     celsius = "&#176;"
 
-    precipitation_volume =  if forecast[:preciptype] && forecast[:preciptype].to_f != 0.0
+    precipitation_volume =  if forecast[:preciptype] && (forecast[:precip]&.to_f > 0 || forecast[:snow]&.to_f > 0)
                               case forecast[:preciptype]&.first
                               when 'rain'
                                 "<b>#{ forecast[:precip]&.to_f }мм</b>"
@@ -107,7 +106,7 @@ class WeatherForecast
                                 "<b>#{ forecast[:precip]&.to_f }мм</b>"
                               end
                             else
-                              ''
+                              nil
                             end
 
     precipitation2 = "#{ emoji(forecast[:icon]) }"
@@ -136,9 +135,9 @@ class WeatherForecast
     pressure       = "Давление:       <b>#{ (forecast[:pressure] * 0.75).round }мм рт. ст.</b>"
     humidity       = "Влажность:     <b>#{ forecast[:humidity].to_i }%</b>"
     wind           = "Ветер:              <b>#{ forecast[:windspeed].round }м/с #{ wind_direction(forecast[:winddir]) }</b>#{ wind_gust }"
-    cloudness      = "Облачность:    <b>#{ forecast[:cloudcover].to_i }%</b>"
+    cloudness      = "Облачность:   <b>#{ forecast[:cloudcover].to_i }%</b>"
     weather_descr  = "#{ forecast[:description] }"
-    precipitation2 += if (forecast[:preciptype] && forecast[:precipprob].to_f != 0.0) || precipitation_volume
+    precipitation2 += if (forecast[:preciptype] && forecast[:precipprob].to_f > 0) || precipitation_volume
                        " вероятность осадков: <b>#{ (forecast[:precipprob]).to_f }%</b>, выпадет #{ precipitation_volume }"
                      else
                        " осадков не ожидается"
