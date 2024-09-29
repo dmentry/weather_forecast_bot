@@ -95,7 +95,7 @@ class WeatherForecast
     # celsius = "\xE2\x84\x83"
     celsius = "&#176;"
 
-    precipitation_volume =  if forecast[:preciptype] && forecast[:preciptype].to_f > 0
+    precipitation_volume =  if forecast[:preciptype] && forecast[:preciptype].to_f != 0.0
                               case forecast[:preciptype]&.first
                               when 'rain'
                                 "<b>#{ forecast[:precip]&.to_f }мм</b>"
@@ -138,7 +138,7 @@ class WeatherForecast
     wind           = "Ветер:              <b>#{ forecast[:windspeed].round }м/с #{ wind_direction(forecast[:winddir]) }</b>#{ wind_gust }"
     cloudness      = "Облачность:    <b>#{ forecast[:cloudcover].to_i }%</b>"
     weather_descr  = "#{ forecast[:description] }"
-    precipitation2 += if (forecast[:preciptype] && forecast[:precipprob]).to_f > 0) || precipitation_volume
+    precipitation2 += if (forecast[:preciptype] && forecast[:precipprob].to_f != 0.0) || precipitation_volume
                        " вероятность осадков: <b>#{ (forecast[:precipprob]).to_f }%</b>, выпадет #{ precipitation_volume }"
                      else
                        " осадков не ожидается"
