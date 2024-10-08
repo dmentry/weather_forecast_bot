@@ -97,19 +97,17 @@ class WeatherForecast
     precipitation_volume =  if forecast[:preciptype] && (forecast[:precip]&.to_f > 0 || forecast[:snow]&.to_f > 0)
                               case forecast[:preciptype]&.first
                               when 'rain'
-                                "<b>#{ forecast[:precip]&.to_f }мм</b>"
+                                ", 💧 <b>#{ forecast[:precip]&.to_f }мм</b>"
                               when 'snow'
-                                "<b>#{ forecast[:snow]&.to_f }см</b>"
+                                ", ❄️ <b>#{ forecast[:snow]&.to_f }см</b>"
                               when 'freezing rain'
-                                "<b>#{ forecast[:precip]&.to_f }мм</b>"
+                                ", 💧 <b>#{ forecast[:precip]&.to_f }мм</b>"
                               when 'ice'
-                                "<b>#{ forecast[:precip]&.to_f }мм</b>"
+                                ", ❄️ <b>#{ forecast[:precip]&.to_f }мм</b>"
                               end
                             else
                               nil
                             end
-
-    precipitation2 = "#{ emoji(forecast[:icon]) }"
 
     wind_gust = if forecast[:windgust] && forecast[:windgust].to_f != 0.0   
                   ", порывы до <b>#{ forecast[:windgust].round }м/с</b>"
@@ -131,16 +129,16 @@ class WeatherForecast
     header         = "#{ forecast_day_name_rus }#{ week_day_name_rus }, <b>#{ Date.parse(forecast[:datetime]).strftime("%d.%m.%Y") }</b>:"
     sun            = "&#127774; <b>#{ Time.parse(forecast[:sunrise]).strftime("%H:%M") }</b> - <b>#{ Time.parse(forecast[:sunset]).strftime("%H:%M") }</b>, световой день: <b>#{ time_difference(forecast[:sunset], forecast[:sunrise]) }</b>"
     moon           = "#{ moon_phase(forecast[:moonphase]) }"
-    temperature    = "Температура: <b>#{ temperature_human(forecast[:tempmin].round) }</b>#{ celsius }...<b>#{ temperature_human(forecast[:tempmax].round) }</b>#{ celsius }, ощущается как <b>#{ temperature_human(forecast[:feelslike].round) }</b>#{ celsius }"
-    pressure       = "Давление:       <b>#{ (forecast[:pressure] * 0.75).round }мм рт. ст.</b>"
-    humidity       = "Влажность:     <b>#{ forecast[:humidity].to_i }%</b>"
-    wind           = "Ветер:              <b>#{ forecast[:windspeed].round }м/с #{ wind_direction(forecast[:winddir]) }</b>#{ wind_gust }"
-    cloudness      = "Облачность:   <b>#{ forecast[:cloudcover].to_i }%</b>"
-    weather_descr  = "#{ forecast[:description] }"
-    precipitation2 += if (forecast[:preciptype] && forecast[:precipprob].to_f > 0) || precipitation_volume
-                       " вероятность осадков: <b>#{ (forecast[:precipprob]).to_f }%</b>, выпадет #{ precipitation_volume }"
+    temperature    = "🌡️ <b>#{ temperature_human(forecast[:tempmin].round) }</b>#{ celsius }...<b>#{ temperature_human(forecast[:tempmax].round) }</b>#{ celsius }, ощущается как <b>#{ temperature_human(forecast[:feelslike].round) }</b>#{ celsius }"
+    pressure       = "Давление:     <b>#{ (forecast[:pressure] * 0.75).round }мм рт. ст.</b>"
+    humidity       = "Влажность:   <b>#{ forecast[:humidity].to_i }%</b>"
+    wind           = "Ветер:            <b>#{ forecast[:windspeed].round }м/с #{ wind_direction(forecast[:winddir]) }</b>#{ wind_gust }"
+    cloudness      = "Облачность: <b>#{ forecast[:cloudcover].to_i }%</b>"
+    weather_descr  = "#{ emoji(forecast[:icon]) } #{ forecast[:description].downcase }"
+    precipitation2 = if (forecast[:preciptype] && forecast[:precipprob].to_f > 0) || precipitation_volume
+                       "Вероятность осадков: <b>#{ (forecast[:precipprob]).to_f }%</b>#{ precipitation_volume }"
                      else
-                       " осадков не ожидается"
+                       "Осадков не ожидается"
                      end
 
     if first_message
@@ -214,21 +212,21 @@ class WeatherForecast
   def moon_phase(moon_code)
     case moon_code
     when (0..0.10), (0.95..0.99)
-      "&#127761;"    # новолуние
+      "&#127761; новолуние"    # новолуние
     when (0.11..0.21)
-      "&#127762;"    # молодая луна
+      "&#127762; молодая луна"    # молодая луна
     when (0.22..0.33)
-      "&#127763;"    # первая четверть
+      "&#127763; первая четверть"    # первая четверть
     when (0.34..0.48)
-      "&#127764;"    # прибывающая луна
+      "&#127764; прибывающая луна"    # прибывающая луна
     when (0.49..0.55)
-      "&#127765;"    # полнолуние
+      "&#127765; полнолуние"    # полнолуние
     when (0.56..0.63)
-      "&#127766;"    # убывающая луна
+      "&#127766; убывающая луна"    # убывающая луна
     when (0.64..0.77)
-      "&#127767;"    # последняя четверть
+      "&#127767; последняя четверть"    # последняя четверть
     when (0.78..0.94)
-      "&#127768;"    # старая луна
+      "&#127768; старая луна"    # старая луна
     end
   end
 
