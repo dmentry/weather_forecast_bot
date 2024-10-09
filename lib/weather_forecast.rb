@@ -32,11 +32,8 @@ class WeatherForecast
   private
 
   def weather_json(city_data)
-    # /forecast end point
-    # uri = URI.parse("https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/weatherdata/forecast?key=#{ @weather_token }&unitGroup=metric&aggregateHours=24&includeAstronomy=true&contentType=json&locationMode=single&iconSet=icons1&locations=#{ city_data }")
-
     # /timeline end point
-    uri = URI.parse("https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline?key=#{ @weather_token }&lang=ru&iconSet=icons2&unitGroup=metric&include=days&elements=datetime,tempmax,tempmin,temp,feelslike,humidity,precip,precipprob,preciptype,snow,windgust,windspeed,winddir,pressure,cloudcover,sunrise,sunset,moonphase,conditions,description,icon&location=#{ city_data }")
+    uri = URI.parse("https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline?key=#{ @weather_token }&lang=ru&iconSet=icons2&unitGroup=metric&include=days&elements=datetime,tempmax,tempmin,temp,feelslike,humidity,precip,precipprob,preciptype,snow,windgust,windspeed,winddir,pressure,cloudcover,sunrise,sunset,moonphase,description,icon&location=#{ city_data }")
 
     response = Net::HTTP.get_response(uri)
 
@@ -94,16 +91,22 @@ class WeatherForecast
 
     celsius = "&#176;"
 
-    precipitation_volume =  if forecast[:preciptype] && (forecast[:precip]&.to_f > 0 || forecast[:snow]&.to_f > 0)
+    precip_qu = if forecast[:snow]&.to_f > 0
+                forecast[:snow]&.to_f
+              else
+                forecast[:precip]&.to_f
+              end
+
+    precipitation_volume =  if forecast[:preciptype] && precip_qu
                               case forecast[:preciptype]&.first
                               when 'rain'
-                                ", 💧 <b>#{ forecast[:precip]&.to_f }мм</b>"
+                                ", 💧 <b>#{ precip_qu }мм</b>"
                               when 'snow'
-                                ", ❄️ <b>#{ forecast[:snow]&.to_f }см</b>"
+                                ", ❄️ <b>#{ precip_qu }см</b>"
                               when 'freezing rain'
-                                ", 💧 <b>#{ forecast[:precip]&.to_f }мм</b>"
+                                ", 💧 <b>#{ precip_qu }мм</b>"
                               when 'ice'
-                                ", ❄️ <b>#{ forecast[:precip]&.to_f }мм</b>"
+                                ", ❄️ <b>#{ precip_qu }мм</b>"
                               end
                             else
                               nil
@@ -116,6 +119,7 @@ class WeatherForecast
                 end
 
     forecast_date = Date.parse(forecast[:datetime])
+
     forecast_day_name_rus = if forecast_date == Date.today
                               'Сегодня'
                             elsif forecast_date == Date.today + 1
@@ -123,6 +127,7 @@ class WeatherForecast
                             elsif forecast_date == Date.today + 2
                               'Послезавтра'
                             end
+
     week_day_name_rus = week_days_rus(Date.parse(forecast[:datetime]).wday)
     week_day_name_rus = ' ' + week_day_name_rus.downcase if forecast_day_name_rus
 
@@ -212,26 +217,27 @@ class WeatherForecast
   def moon_phase(moon_code)
     case moon_code
     when (0..0.10), (0.95..0.99)
-      "&#127761; новолуние"    # новолуние
+      "&#127761; новолуние"          # новолуние
     when (0.11..0.21)
-      "&#127762; молодая луна"    # молодая луна
+      "&#127762; молодая луна"       # молодая луна
     when (0.22..0.33)
       "&#127763; первая четверть"    # первая четверть
     when (0.34..0.48)
-      "&#127764; прибывающая луна"    # прибывающая луна
+      "&#127764; прибывающая луна"   # прибывающая луна
     when (0.49..0.55)
-      "&#127765; полнолуние"    # полнолуние
+      "&#127765; полнолуние"         # полнолуние
     when (0.56..0.63)
-      "&#127766; убывающая луна"    # убывающая луна
+      "&#127766; убывающая луна"     # убывающая луна
     when (0.64..0.77)
-      "&#127767; последняя четверть"    # последняя четверть
+      "&#127767; последняя четверть" # последняя четверть
     when (0.78..0.94)
-      "&#127768; старая луна"    # старая луна
+      "&#127768; старая луна"        # старая луна
     end
   end
 
   def week_days_rus(week_day_nr)
     week_days_rus = { 1 => 'Понедельник', 2 => 'Вторник', 3 => 'Среда', 4 => 'Четверг', 5 => 'Пятница', 6 => 'Суббота', 0 => 'Воскресенье' }
+
     week_days_rus[week_day_nr]
   end
 

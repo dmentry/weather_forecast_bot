@@ -138,7 +138,7 @@ class Bot
               elsif message.data == 'no'
                 clear_values
 
-                # bye_message(bot: bot, message: message, additional_text: 'Ок, на этом останавливаемся')
+                bye_message(bot: bot, message: message, additional_text: 'Готово')
               end
 
             end
@@ -224,6 +224,8 @@ class Bot
     no  = Telegram::Bot::Types::InlineKeyboardButton.new(text: '❌ Нет', callback_data: 'no')
 
     kb = Telegram::Bot::Types::InlineKeyboardMarkup.new(inline_keyboard: [[no, yes]])
+
+    sleep(1)
 
     bot.api.send_message(chat_id: message.from.id, text: 'Дальше?', reply_markup: kb, parse_mode: 'HTML')
   end
