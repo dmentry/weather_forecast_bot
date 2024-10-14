@@ -131,13 +131,15 @@ class WeatherForecast
     week_day_name_rus = week_days_rus(Date.parse(forecast[:datetime]).wday)
     week_day_name_rus = ' ' + week_day_name_rus.downcase if forecast_day_name_rus
 
+    wind_speed = (forecast[:windspeed] * 1000 / 3600).round
+
     header         = "#{ forecast_day_name_rus }#{ week_day_name_rus }, <b>#{ Date.parse(forecast[:datetime]).strftime("%d.%m.%Y") }</b>:"
     sun            = "&#127774; <b>#{ Time.parse(forecast[:sunrise]).strftime("%H:%M") }</b> - <b>#{ Time.parse(forecast[:sunset]).strftime("%H:%M") }</b>, световой день: <b>#{ time_difference(forecast[:sunset], forecast[:sunrise]) }</b>"
     moon           = "#{ moon_phase(forecast[:moonphase]) }"
     temperature    = "🌡️ <b>#{ temperature_human(forecast[:tempmin].round) }</b>#{ celsius }...<b>#{ temperature_human(forecast[:tempmax].round) }</b>#{ celsius }, ощущается как <b>#{ temperature_human(forecast[:feelslike].round) }</b>#{ celsius }"
     pressure       = "Давление:     <b>#{ (forecast[:pressure] * 0.75).round }мм рт. ст.</b>"
     humidity       = "Влажность:   <b>#{ forecast[:humidity].to_i }%</b>"
-    wind           = "Ветер:            <b>#{ forecast[:windspeed].round }м/с #{ wind_direction(forecast[:winddir]) }</b>#{ wind_gust }"
+    wind           = "Ветер:            <b>#{ wind_speed }м/с #{ wind_direction(forecast[:winddir]) }</b>#{ wind_gust }"
     cloudness      = "Облачность: <b>#{ forecast[:cloudcover].to_i }%</b>"
     weather_descr  = "#{ emoji(forecast[:icon]) } #{ forecast[:description].downcase }"
     precipitation2 = if (forecast[:preciptype] && forecast[:precipprob].to_f > 0) || precipitation_volume
