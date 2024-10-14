@@ -112,11 +112,13 @@ class WeatherForecast
                               nil
                             end
 
-    wind_gust = if forecast[:windgust] && forecast[:windgust].to_f != 0.0   
-                  ", порывы до <b>#{ forecast[:windgust].round }м/с</b>"
-                else
-                  ''
-                end
+    wind_speed = (forecast[:windspeed] * 1000 / 3600).round
+
+    wind_gust_spd = if forecast[:windgust] && forecast[:windgust].to_f != 0.0   
+                      ", порывы до <b>#{ (forecast[:windgust] * 1000 / 3600).round }м/с</b>"
+                    else
+                      ''
+                    end
 
     forecast_date = Date.parse(forecast[:datetime])
 
@@ -130,8 +132,6 @@ class WeatherForecast
 
     week_day_name_rus = week_days_rus(Date.parse(forecast[:datetime]).wday)
     week_day_name_rus = ' ' + week_day_name_rus.downcase if forecast_day_name_rus
-
-    wind_speed = (forecast[:windspeed] * 1000 / 3600).round
 
     header         = "#{ forecast_day_name_rus }#{ week_day_name_rus }, <b>#{ Date.parse(forecast[:datetime]).strftime("%d.%m.%Y") }</b>:"
     sun            = "&#127774; <b>#{ Time.parse(forecast[:sunrise]).strftime("%H:%M") }</b> - <b>#{ Time.parse(forecast[:sunset]).strftime("%H:%M") }</b>, световой день: <b>#{ time_difference(forecast[:sunset], forecast[:sunrise]) }</b>"
