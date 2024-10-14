@@ -139,7 +139,7 @@ class WeatherForecast
     temperature    = "🌡️ <b>#{ temperature_human(forecast[:tempmin].round) }</b>#{ celsius }...<b>#{ temperature_human(forecast[:tempmax].round) }</b>#{ celsius }, ощущается как <b>#{ temperature_human(forecast[:feelslike].round) }</b>#{ celsius }"
     pressure       = "Давление:     <b>#{ (forecast[:pressure] * 0.75).round }мм рт. ст.</b>"
     humidity       = "Влажность:   <b>#{ forecast[:humidity].to_i }%</b>"
-    wind           = "Ветер:            <b>#{ wind_speed }м/с #{ wind_direction(forecast[:winddir]) }</b>#{ wind_gust }"
+    wind           = "Ветер:            <b>#{ wind_speed }м/с #{ wind_direction(forecast[:winddir]) }</b>#{ wind_gust_spd }"
     cloudness      = "Облачность: <b>#{ forecast[:cloudcover].to_i }%</b>"
     weather_descr  = "#{ emoji(forecast[:icon]) } #{ forecast[:description].downcase }"
     precipitation2 = if (forecast[:preciptype] && forecast[:precipprob].to_f > 0) || precipitation_volume
