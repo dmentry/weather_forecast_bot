@@ -152,29 +152,29 @@ class WeatherForecast
         forecast = <<~FORECAST
         <b>#{ @city_name }</b>.\nЧасовой пояс: #{ @time_zone } (#{ @time_zone_shift }ч).\n
         #{ header }
-        #{ sun }
-        #{ moon }
+        #{ weather_descr }
+        #{ precipitation2 }
+        #{ cloudness }
         #{ temperature }
         #{ pressure }
         #{ humidity }
         #{ wind }
-        #{ cloudness }
-        #{ weather_descr }
-        #{ precipitation2 }
+        #{ sun }
+        #{ moon }
       FORECAST
     else
       forecast = <<~FORECAST
 
         #{ header }
-        #{ sun }
-        #{ moon }
+        #{ weather_descr }
+        #{ precipitation2 }
+        #{ cloudness }
         #{ temperature }
         #{ pressure }
         #{ humidity }
         #{ wind }
-        #{ cloudness }
-        #{ weather_descr }
-        #{ precipitation2 }
+        #{ sun }
+        #{ moon }
       FORECAST
     end
   end
