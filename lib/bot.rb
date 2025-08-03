@@ -67,6 +67,10 @@ class Bot
                 #   rescue => e
                 #     log_writing(e: e, error_position: 'пасхалка')
                 #   end
+                elsif message.text[0] == '/'
+                  clear_values
+
+                  bye_message(bot: bot, message: message, additional_text: 'Неизвестная команда. Попробуйте начать заново, нажав /start. ')
                 else
                   if @out.size > 0
                     yes = Telegram::Bot::Types::InlineKeyboardButton.new(text: '✅ Да', callback_data: 'yes')
