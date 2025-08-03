@@ -42,31 +42,31 @@ class Bot
                                        text: "&#8505;\nВыберите населенный пункт из списка или введите его название.\nМожно "\
                                              "вводить по-русски, по-английски или по-русски латиницей. Если название распространенное, то конкретизируйте его, "\
                                              "добавив область и/или район."\
-                                             "\nТакже, можно просто ввести координаты в десятичном формате через запятую: широта, долгота.\nНапример: 55.753215, 37.990546"\
-                                             "\nПрогноз на 15 дней.\nВ качестве бонуса по команде /photo будет показана фотка дня NASA.",
+                                             "\nТакже, можно просто ввести координаты в десятичном формате через запятую: широта, долгота: 55.753215, 37.990546"\
+                                             "\nПрогноз на 15 дней.",
                                        parse_mode: 'HTML'
                                       )
-                #Пасхалка
-                elsif message.text == '/photo'
-                  uri = URI.parse("https://api.nasa.gov/planetary/apod?api_key=#{ @nasa_api_tkn }")
+                #Пасхалка перестала работать - НАСА не дает заходитс российских IP
+                # elsif message.text == '/photo'
+                #   uri = URI.parse("https://api.nasa.gov/planetary/apod?api_key=#{ @nasa_api_tkn }")
 
-                  response = Net::HTTP.get_response(uri)
+                #   response = Net::HTTP.get_response(uri)
 
-                  nasa_jsn = JSON.parse(response.body, symbolize_names: true)
+                #   nasa_jsn = JSON.parse(response.body, symbolize_names: true)
 
-                  dt = Date&.parse(nasa_jsn[:date])&.strftime("%d.%m.%Y")
+                #   dt = Date&.parse(nasa_jsn[:date])&.strftime("%d.%m.%Y")
 
-                  msg = if nasa_jsn[:media_type] == "image"
-                          "<b>Фото дня NASA на #{ dt }</b>:\n#{ nasa_jsn[:url] }\n#{ nasa_jsn[:explanation] }"
-                        else
-                          'Сегодня картинки нет 😦'
-                        end
+                #   msg = if nasa_jsn[:media_type] == "image"
+                #           "<b>Фото дня NASA на #{ dt }</b>:\n#{ nasa_jsn[:url] }\n#{ nasa_jsn[:explanation] }"
+                #         else
+                #           'Сегодня картинки нет 😦'
+                #         end
 
-                  begin
-                    bot.api.send_message(chat_id: message.chat.id, text: msg, parse_mode: 'HTML')
-                  rescue => e
-                    log_writing(e: e, error_position: 'пасхалка')
-                  end
+                #   begin
+                #     bot.api.send_message(chat_id: message.chat.id, text: msg, parse_mode: 'HTML')
+                #   rescue => e
+                #     log_writing(e: e, error_position: 'пасхалка')
+                #   end
                 else
                   if @out.size > 0
                     yes = Telegram::Bot::Types::InlineKeyboardButton.new(text: '✅ Да', callback_data: 'yes')
